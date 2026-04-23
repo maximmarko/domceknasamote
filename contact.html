@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kontakt | Chalupka na Samote</title>
+    <meta name="description" content="Kontaktn&eacute; &uacute;daje a poloha Chalupky na Samote." />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="Chalupka/logo%20dom%C4%8Dek%20na%20samote.svg" type="image/svg+xml" />
+    <link href="https://db.onlinewebfonts.com/c/22f0348d86e4ab89a503f24da5f624b4?family=Vilane+Bold" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body class="mapa-page kontakt-page" id="top">
+    <header class="topbar">
+        <a class="brand" href="index.html" aria-label="Back to home">
+            <img class="brand-logo" src="Chalupka/logo%20dom%C4%8Dek%20na%20samote.svg" alt="Chalupka na Samote" />
+        </a>
+        <nav class="nav">
+            <a href="obsadenost.html">Rezervova&#357;</a>
+            <a href="fotky.html">FOTKY</a>
+            <a href="mapa.html">V okol&iacute;</a>
+            <a href="contact.html">Kontakt</a>
+        </nav>
+        <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </header>
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile">
+        <a href="obsadenost.html">Rezervova&#357;</a>
+        <a href="fotky.html">FOTKY</a>
+        <a href="mapa.html">V okol&iacute;</a>
+        <a href="contact.html">Kontakt</a>
+    </nav>
+
+    <main class="mapa-shell kontakt-shell">
+        <section class="mapa-hero kontakt-hero" data-animate="fade">
+            <span class="eyebrow dark">Kontakt</span>
+            <h1>Spojte sa s nami a n&aacute;jdite cestu k dom&#269;eku</h1>
+            <p>
+                Tu n&aacute;jdete v&scaron;etky d&ocirc;le&#382;it&eacute; kontaktn&eacute; inform&aacute;cie aj mapu s presnou
+                polohou Chalupky na Samote. Pre rezerv&aacute;ciu, ot&aacute;zky alebo trasu m&aacute;te
+                v&scaron;etko na jednom mieste.
+            </p>
+        </section>
+
+        <section class="mapa-layout kontakt-layout" data-animate="up">
+            <aside class="mapa-panel kontakt-panel">
+                <h2>Kontaktn&eacute; &uacute;daje</h2>
+                <p class="mapa-sub kontakt-sub">
+                    Zavolajte, nap&iacute;&scaron;te alebo si otvorte trasu priamo v mape.
+                </p>
+                <div class="kontakt-card-grid">
+                    <a class="kontakt-card" href="tel:+421905604540">
+                        <span class="kontakt-card-label">Telef&oacute;n</span>
+                        <strong>+421 905 604 540</strong>
+                    </a>
+                    <a class="kontakt-card" href="mailto:info@chalupkanasamote.sk">
+                        <span class="kontakt-card-label">E-mail</span>
+                        <strong>info@chalupkanasamote.sk</strong>
+                    </a>
+                    <a class="kontakt-card" href="https://www.instagram.com/chalupka_na_samote/" target="_blank" rel="noopener noreferrer">
+                        <span class="kontakt-card-label">Instagram</span>
+                        <strong>@chalupka_na_samote</strong>
+                    </a>
+                    <a class="kontakt-card" href="https://www.facebook.com/chalupkanasamote?locale=cs_CZ" target="_blank" rel="noopener noreferrer">
+                        <span class="kontakt-card-label">Facebook</span>
+                        <strong>Chalupka na Samote</strong>
+                    </a>
+                </div>
+                <div class="kontakt-note">
+                    <h3>Poloha dom&#269;eka</h3>
+                    <p>
+                        Na mape je vyzna&#269;en&aacute; presn&aacute; lokalita Chalupky na Samote. Kliknut&iacute;m
+                        na bod otvor&iacute;te detail s odkazom na navig&aacute;ciu.
+                    </p>
+                </div>
+            </aside>
+            <div class="mapa-canvas-wrap kontakt-map-wrap">
+                <div class="mapa-zoom-controls" aria-label="Zoom mapy">
+                    <button class="mapa-zoom-btn" id="mapa-zoom-in" type="button" aria-label="Priblizit mapu">+</button>
+                    <button class="mapa-zoom-btn" id="mapa-zoom-out" type="button" aria-label="Oddialit mapu">&minus;</button>
+                </div>
+                <button
+                    class="mapa-fullscreen-toggle"
+                    id="mapa-fullscreen-toggle"
+                    type="button"
+                    aria-pressed="false"
+                    aria-label="Zapnut mapu na celu obrazovku"
+                >
+                    <span class="mapa-fullscreen-label">Cel&aacute; mapa</span>
+                </button>
+                <div id="map-canvas" class="mapa-canvas" aria-label="Mapa polohy dom&#269;eka"></div>
+                <div id="map-status" class="mapa-status" hidden></div>
+            </div>
+        </section>
+    </main>
+
+    <div class="lightbox lightbox--info" aria-hidden="true">
+        <div class="lightbox-backdrop" data-action="close"></div>
+        <div class="lightbox-panel" role="dialog" aria-modal="true" aria-label="Naviga&#269;n&yacute; bod v detaile">
+            <button class="lightbox-close" type="button" data-action="close" aria-label="Close">
+                &times;
+            </button>
+            <img class="lightbox-image" src="" alt="" />
+            <div class="lightbox-info-row">
+                <div class="lightbox-meta">
+                    <span class="lightbox-count"></span>
+                </div>
+                <p class="lightbox-lead">Ako sa k nám dostať</p>
+                <span class="lightbox-caption"></span>
+                <div class="lightbox-route-wrap">
+                    <a class="primary-btn lightbox-route-btn" id="lightbox-drive-btn" href="#" target="_blank" rel="noopener noreferrer" hidden>
+                        Trasa
+                    </a>
+                    <a class="ghost-btn lightbox-route-btn lightbox-route-btn-secondary" id="lightbox-walk-btn" href="#" target="_blank" rel="noopener noreferrer" hidden>
+                        Pe&scaron;o
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="contact-strip footer-strip">
+            <div class="contact-details">
+                <span class="contact-label">Kontakt:</span>
+                <a class="contact-link" href="tel:+421905604540">TEL: +421 905 604 540</a>
+                <a class="contact-link" href="mailto:info@chalupkanasamote.sk">MAIL: info@chalupkanasamote.sk</a>
+            </div>
+            <a class="contact-logo" href="index.html" aria-label="Back to home">
+                <img src="Chalupka/logo%20dom%C4%8Dek%20na%20samote.svg" alt="Chalupka na Samote" />
+            </a>
+            <div class="contact-social">
+                <a class="social-icon" href="https://www.facebook.com/chalupkanasamote?locale=cs_CZ" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M14 8.5h2.8V6h-2.8c-2.3 0-3.7 1.4-3.7 3.7v1.8H8v2.7h2.3V20h2.9v-5.8h2.4l.5-2.7h-2.9V9.9c0-.8.4-1.4 1.8-1.4z"/>
+                    </svg>
+                </a>
+                <a class="social-icon" href="https://www.instagram.com/chalupka_na_samote/" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M16.8 3.5H7.2A3.7 3.7 0 0 0 3.5 7.2v9.6a3.7 3.7 0 0 0 3.7 3.7h9.6a3.7 3.7 0 0 0 3.7-3.7V7.2a3.7 3.7 0 0 0-3.7-3.7zm2 13.3a2 2 0 0 1-2 2H7.2a2 2 0 0 1-2-2V7.2a2 2 0 0 1 2-2h9.6a2 2 0 0 1 2 2v9.6zm-6.8-8a4.5 4.5 0 1 0 4.5 4.5A4.5 4.5 0 0 0 12 8.8zm0 7.3a2.8 2.8 0 1 1 2.8-2.8A2.8 2.8 0 0 1 12 16.1zm4.8-7.9a1.1 1.1 0 1 1-1.1-1.1 1.1 1.1 0 0 1 1.1 1.1z"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>2024 Chalupka na Samote. All rights reserved.</span>
+            <span class="footer-legal-links"><a href="zasady-ochrany-osobnych-udajov.html">Ochrana osobných údajov</a><a href="vseobecne-podmienky.html">Všeobecné podmienky</a></span>
+        </div>
+    </footer>
+
+    <script>
+        window.MAPA_CONFIG = {
+            apiKey: "AIzaSyCMLAcUh4fhvlJ2lKqf0Nz8dxJRFRZ23xI",
+            mapId: "",
+            mapTypeId: "satellite",
+            preserveCameraOnMarkerOpen: true,
+            initialView: {
+                center: {
+                    lat: 48.77925,
+                    lng: 19.65355
+                },
+                zoom: 15.85
+            },
+            routePath: [
+                { lat: 48.78087451192482, lng: 19.65664726156895 },
+                { lat: 48.78066829773169, lng: 19.657900995112985 },
+                { lat: 48.78062325561435, lng: 19.658212390307717 },
+                { lat: 48.78047978786869, lng: 19.657976945193532 },
+                { lat: 48.78033952256476, lng: 19.657663108998662 },
+                { lat: 48.78008826256617, lng: 19.65742322761042 },
+                { lat: 48.77906669486727, lng: 19.656737596448735 },
+                { lat: 48.77874111002765, lng: 19.656510246152234 },
+                { lat: 48.778388390736644, lng: 19.65615400435873 },
+                { lat: 48.778226776053536, lng: 19.656010791581487 },
+                { lat: 48.77776434284531, lng: 19.65589085088137 },
+                { lat: 48.77756143713274, lng: 19.655919493440038 },
+                { lat: 48.77739864009954, lng: 19.6560322734908 },
+                { lat: 48.77674348034395, lng: 19.65667070663517 },
+                { lat: 48.77660400106711, lng: 19.65676258007213 },
+                { lat: 48.77652225132148, lng: 19.65677144090976 },
+                { lat: 48.776342067735136, lng: 19.6567170100443 },
+                { lat: 48.77626699105136, lng: 19.656665110852465 },
+                { lat: 48.776279503839795, lng: 19.656118270587264 }
+            ],
+            locations: [
+                {
+                    title: "Dom\u010Dek na samote",
+                    description: "Hlavna lokalita",
+                    lat: 48.776715805040354,
+                    lng: 19.65578883211096,
+                    season: "always",
+                    image: "Chalupka/DJI_0139.JPG",
+                    lightboxSrc: "Chalupka/DJI_0139.JPG",
+                    lightboxText: "",
+                    driveNavigationUrl: "https://www.google.com/maps/dir/?api=1&destination=48.780675899067354,19.658037044649713&travelmode=driving",
+                    walkNavigationUrl: "https://www.google.com/maps/dir/?api=1&destination=48.776715805040354,19.65578883211096&travelmode=walking",
+                    url: "https://maps.google.com/?q=48.776715805040354,19.65578883211096"
+                },
+                {
+                    title: "Pr\u00EDstupov\u00E1 cesta",
+                    description: "Naviga\u010Dn\u00FD bod",
+                    lat: 48.781512596146165,
+                    lng: 19.645519489741215,
+                    season: "always",
+                    image: "Chalupka/nav1.png",
+                    lightboxSrc: "Chalupka/nav1.png",
+                    lightboxText: "Pri predajni ELARO odbo\u010Dte do\u013Eava a pokra\u010Dujte po pr\u00EDstupovej ceste, ktor\u00E1 v\u00E1s pohodlne dovedie priamo ku Dom\u010Deku na Samote.",
+                    navigationUrl: "https://www.google.com/maps/dir/?api=1&destination=48.78152473381917,19.645511922412375&travelmode=driving",
+                    walkNavigationUrl: "",
+                    driveLabel: "Navigovať",
+                    url: "https://maps.google.com/?q=48.78152473381917,19.645511922412375"
+                }
+            ]
+        };
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>

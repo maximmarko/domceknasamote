@@ -1,0 +1,225 @@
+﻿<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mapa | Chalupka na Samote</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="Chalupka/logo%20dom%C4%8Dek%20na%20samote.svg" type="image/svg+xml" />
+    <link href="https://db.onlinewebfonts.com/c/22f0348d86e4ab89a503f24da5f624b4?family=Vilane+Bold" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body class="mapa-page" id="top">
+    <header class="topbar">
+        <a class="brand" href="index.html" aria-label="Back to home">
+            <img class="brand-logo" src="Chalupka/logo%20dom%C4%8Dek%20na%20samote.svg" alt="Chalupka na Samote" />
+        </a>
+        <nav class="nav">
+            <a href="obsadenost.html">Rezervova&#357;</a>
+            <a href="fotky.html">FOTKY</a>
+            <a href="mapa.html">V okol&iacute;</a>
+            <a href="contact.html">Kontakt</a>
+        </nav>
+        <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </header>
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile">
+        <a href="obsadenost.html">Rezervova&#357;</a>
+        <a href="fotky.html">FOTKY</a>
+        <a href="mapa.html">V okol&iacute;</a>
+        <a href="contact.html">Kontakt</a>
+    </nav>
+
+    <main class="mapa-shell">
+        <section class="mapa-hero" data-animate="fade">
+            <span class="eyebrow dark">Mapa</span>
+            <h1>Objavte okolie chalupky na mape</h1>
+            <p>
+                Kliknite na bod v mape alebo kartu v zozname. Zobraz&iacute; sa detail
+                lokality s odkazom na trasu.
+            </p>
+        </section>
+
+        <section class="mapa-layout" data-animate="up">
+            <aside class="mapa-panel">
+                <h2>Zauj&iacute;mav&eacute; miesta</h2>
+                <p class="mapa-sub">
+                    Hlavn&aacute; lokalita je v&zcaron;dy zobrazen&aacute;. Vyberte sez&oacute;nu pre ostatn&eacute; body.
+                </p>
+                <div class="mapa-filters" role="tablist" aria-label="Filter sezony">
+                    <button class="mapa-filter active" type="button" data-season-filter="summer">Leto</button>
+                    <button class="mapa-filter" type="button" data-season-filter="winter">Zima</button>
+                </div>
+                <div class="mapa-list" id="mapa-list"></div>
+            </aside>
+            <div class="mapa-canvas-wrap">
+                <div class="mapa-fs-filters" aria-label="Filter sezony vo fullscreene">
+                    <button class="mapa-filter" type="button" data-season-filter="summer">Leto</button>
+                    <button class="mapa-filter" type="button" data-season-filter="winter">Zima</button>
+                </div>
+                <div class="mapa-zoom-controls" aria-label="Zoom mapy">
+                    <button class="mapa-zoom-btn" id="mapa-zoom-in" type="button" aria-label="Priblizit mapu">+</button>
+                    <button class="mapa-zoom-btn" id="mapa-zoom-out" type="button" aria-label="Oddialit mapu">−</button>
+                </div>
+                <button
+                    class="mapa-fullscreen-toggle"
+                    id="mapa-fullscreen-toggle"
+                    type="button"
+                    aria-pressed="false"
+                    aria-label="Zapnut mapu na celu obrazovku"
+                >
+                    <span class="mapa-fullscreen-label">Cel&aacute; mapa</span>
+                </button>
+                <div id="map-canvas" class="mapa-canvas" aria-label="Mapa"></div>
+                <div id="map-status" class="mapa-status" hidden></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="contact-strip footer-strip">
+            <div class="contact-details">
+                <span class="contact-label">Kontakt:</span>
+                <a class="contact-link" href="tel:+421905604540">TEL: +421 905 604 540</a>
+                <a class="contact-link" href="https://www.google.com/maps/place/Chal%C3%BApka+na+samote/@48.7766039,19.6555098,213m/data=!3m1!1e3!4m12!1m5!3m4!2zNDjCsDQ2JzM4LjQiTiAxOcKwMzknMjEuOSJF!8m2!3d48.7773339!4d19.6560764!3m5!1s0x4715650ecffe7021:0xb613b499373dd184!8m2!3d48.7766735!4d19.6558106!16s%2Fg%2F11fcmrhjyp?entry=ttu&g_ep=EgoyMDI1MTIwOS4wIKXMDSoKLDEwMDc5MjA3M0gBUAM%3D" target="_blank" rel="noopener noreferrer">GPS: 48.777334, 19.656076</a>
+                <span>MAIL: info@chalupkanasamote.sk</span>
+            </div>
+            <a class="contact-logo" href="index.html" aria-label="Back to home">
+                <img src="Chalupka/logo%20dom%C4%8Dek%20na%20samote.svg" alt="Chalupka na Samote" />
+            </a>
+            <div class="contact-social">
+                <a class="social-icon" href="https://www.facebook.com/chalupkanasamote?locale=cs_CZ" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M14 8.5h2.8V6h-2.8c-2.3 0-3.7 1.4-3.7 3.7v1.8H8v2.7h2.3V20h2.9v-5.8h2.4l.5-2.7h-2.9V9.9c0-.8.4-1.4 1.8-1.4z"/>
+                    </svg>
+                </a>
+                <a class="social-icon" href="https://www.instagram.com/chalupka_na_samote/" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M16.8 3.5H7.2A3.7 3.7 0 0 0 3.5 7.2v9.6a3.7 3.7 0 0 0 3.7 3.7h9.6a3.7 3.7 0 0 0 3.7-3.7V7.2a3.7 3.7 0 0 0-3.7-3.7zm2 13.3a2 2 0 0 1-2 2H7.2a2 2 0 0 1-2-2V7.2a2 2 0 0 1 2-2h9.6a2 2 0 0 1 2 2v9.6zm-6.8-8a4.5 4.5 0 1 0 4.5 4.5A4.5 4.5 0 0 0 12 8.8zm0 7.3a2.8 2.8 0 1 1 2.8-2.8A2.8 2.8 0 0 1 12 16.1zm4.8-7.9a1.1 1.1 0 1 1-1.1-1.1 1.1 1.1 0 0 1 1.1 1.1z"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>2024 Chalupka na Samote. All rights reserved.</span>
+            <span class="footer-legal-links"><a href="zasady-ochrany-osobnych-udajov.html">Ochrana osobných údajov</a><a href="vseobecne-podmienky.html">Všeobecné podmienky</a></span>
+        </div>
+    </footer>
+
+    <script>
+        window.MAPA_CONFIG = {
+            apiKey: "AIzaSyCMLAcUh4fhvlJ2lKqf0Nz8dxJRFRZ23xI",
+            mapId: "",
+            locations: [
+                {
+                    title: "Dom\u010Dek na samote",
+                    description: "Hlavna lokalita",
+                    lat: 48.776715805040354,
+                    lng: 19.65578883211096,
+                    season: "always",
+                    image: "Chalupka/DJI_0139.JPG",
+                    url: "https://maps.google.com/?q=48.776715805040354,19.65578883211096"
+                },
+                {
+                    title: "\u010Ciernohronsk\u00E1 \u017Eeleznica",
+                    description: "Letna aktivita",
+                    lat: 48.7463480219968,
+                    lng: 19.657303518601918,
+                    season: "summer",
+                    image: "Chalupka/cernohronska.jpg",
+                    url: "https://maps.google.com/?q=48.7463480219968,19.657303518601918"
+                },
+                {
+                    title: "Hron\u010Dianska dolina",
+                    description: "Letna aktivita",
+                    lat: 48.765873662275844,
+                    lng: 19.62456419015173,
+                    season: "summer",
+                    image: "Chalupka/hroncianska_dolina.jpg",
+                    url: "https://maps.google.com/?q=48.765873662275844,19.62456419015173"
+                },
+                {
+                    title: "CYKLODREZINY",
+                    description: "Letna aktivita",
+                    lat: 48.7954703807645,
+                    lng: 19.582312171781755,
+                    season: "summer",
+                    image: "Chalupka/cyklodreziny.jpg",
+                    url: "https://maps.google.com/?q=48.7954703807645,19.582312171781755"
+                },
+                {
+                    title: "Rozh\u013Ead\u0148a Pust\u00FD Vrch",
+                    description: "Letna aktivita",
+                    lat: 48.73874450785157,
+                    lng: 19.685335797121553,
+                    season: "summer",
+                    image: "Chalupka/rozhladna_pusty_vrch.jpg",
+                    url: "https://maps.google.com/?q=48.73874450785157,19.685335797121553"
+                },
+                {
+                    title: "Ski \u010Cierny Balog",
+                    description: "Zimna aktivita",
+                    lat: 48.74820923110817,
+                    lng: 19.634570897122057,
+                    season: "winter",
+                    image: "Chalupka/ski_cierny_balog.jpg",
+                    url: "https://maps.google.com/?q=48.74820923110817,19.634570897122057"
+                },
+                {
+                    title: "Be\u017Eky Lom nad Rimavicou",
+                    description: "Zimna aktivita",
+                    lat: 48.63577461175177,
+                    lng: 19.64640138002385,
+                    season: "winter",
+                    image: "Chalupka/bezky_lom_nad_rimavicou.jpg",
+                    url: "https://maps.google.com/?q=48.63577461175177,19.64640138002385"
+                },
+                {
+                    title: "M\u00DDTO SKI & BIKE",
+                    description: "Zimna aktivita",
+                    lat: 48.846346198940104,
+                    lng: 19.620717510621898,
+                    season: "winter",
+                    image: "Chalupka/myto_ski_bike.jpg",
+                    url: "https://maps.google.com/?q=48.846346198940104,19.620717510621898"
+                },
+                {
+                    title: "Ski T\u00E1le",
+                    description: "Zimna aktivita",
+                    lat: 48.86864617473703,
+                    lng: 19.59157835295312,
+                    season: "winter",
+                    image: "Chalupka/ski_tale.jpg",
+                    url: "https://maps.google.com/?q=48.86864617473703,19.59157835295312"
+                },
+                {
+                    title: "Ski Jasn\u00E1",
+                    description: "Zimna aktivita",
+                    lat: 48.944863765199905,
+                    lng: 19.5898300885294,
+                    season: "winter",
+                    image: "Chalupka/ski_jasna.jpg",
+                    url: "https://maps.google.com/?q=48.944863765199905,19.5898300885294"
+                },
+                {
+                    title: "Be\u017Ek\u00E1rske trate \u010Certovica",
+                    description: "Zimna aktivita",
+                    lat: 48.90527863159609,
+                    lng: 19.736795953999636,
+                    season: "winter",
+                    image: "Chalupka/bezecke_trate_certovica.jpg",
+                    url: "https://maps.google.com/?q=48.90527863159609,19.736795953999636"
+                }
+            ]
+        };
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
+
+
