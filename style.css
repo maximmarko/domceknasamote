@@ -3101,6 +3101,38 @@ body.booking-nav-accent-on .booking-nav-link {
     z-index: 1;
 }
 
+.leaflet-map-pin-wrap {
+    background: transparent;
+    border: 0;
+}
+
+.leaflet-map-pin-wrap .map-pin {
+    position: relative;
+    transform: none;
+}
+
+.leaflet-container {
+    font-family: "Work Sans", "Segoe UI", sans-serif;
+}
+
+.leaflet-control-attribution {
+    background: rgba(255, 253, 249, 0.86) !important;
+    border-radius: 10px 0 0 0;
+}
+
+.leaflet-popup-content-wrapper {
+    border-radius: 18px;
+    box-shadow: 0 16px 28px rgba(18, 22, 20, 0.2);
+}
+
+.leaflet-popup-content {
+    margin: 14px;
+}
+
+.leaflet-popup-tip {
+    box-shadow: none;
+}
+
 @keyframes mapPinPulse {
     0% {
         box-shadow: 0 0 0 0 rgba(198, 164, 105, 0.34);
