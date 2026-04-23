@@ -1169,17 +1169,9 @@
         }
     };
 
-    const startPlayback = () => {
+    const tryPlayback = () => {
         video.muted = true;
         video.defaultMuted = true;
-        video.autoplay = true;
-        video.loop = true;
-        video.playsInline = true;
-        video.setAttribute("muted", "");
-        video.setAttribute("autoplay", "");
-        video.setAttribute("loop", "");
-        video.setAttribute("playsinline", "");
-        video.load();
 
         const playPromise = video.play();
         if (playPromise && typeof playPromise.catch === "function") {
@@ -1192,7 +1184,7 @@
     });
 
     video.addEventListener("canplay", () => {
-        startPlayback();
+        tryPlayback();
     });
 
     video.addEventListener("playing", () => {
@@ -1205,7 +1197,7 @@
 
     document.addEventListener("fullscreenchange", updateFullscreenState);
     updateFullscreenState();
-    startPlayback();
+    tryPlayback();
 })();
 
 (() => {
