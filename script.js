@@ -1157,20 +1157,55 @@
         }
     };
 
-    video.addEventListener("loadeddata", () => {
-        if (fallbackMessage) {
-            fallbackMessage.hidden = true;
-        }
-    });
-
-    video.addEventListener("error", () => {
+    const showFallback = () => {
         if (fallbackMessage) {
             fallbackMessage.hidden = false;
         }
+    };
+
+    const hideFallback = () => {
+        if (fallbackMessage) {
+            fallbackMessage.hidden = true;
+        }
+    };
+
+    const startPlayback = () => {
+        video.muted = true;
+        video.defaultMuted = true;
+        video.autoplay = true;
+        video.loop = true;
+        video.playsInline = true;
+        video.setAttribute("muted", "");
+        video.setAttribute("autoplay", "");
+        video.setAttribute("loop", "");
+        video.setAttribute("playsinline", "");
+        video.load();
+
+        const playPromise = video.play();
+        if (playPromise && typeof playPromise.catch === "function") {
+            playPromise.catch(showFallback);
+        }
+    };
+
+    video.addEventListener("loadeddata", () => {
+        hideFallback();
+    });
+
+    video.addEventListener("canplay", () => {
+        startPlayback();
+    });
+
+    video.addEventListener("playing", () => {
+        hideFallback();
+    });
+
+    video.addEventListener("error", () => {
+        showFallback();
     });
 
     document.addEventListener("fullscreenchange", updateFullscreenState);
     updateFullscreenState();
+    startPlayback();
 })();
 
 (() => {
