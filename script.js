@@ -1932,7 +1932,6 @@
     let routeLine = null;
     let routeFlow = null;
     let routeAnimationFrame = null;
-    let isLeafletMode = false;
     const minAllowedZoom = 7;
 
     const mapStyle = [
@@ -1991,12 +1990,6 @@
     const isMobileLayout = () => window.matchMedia("(max-width: 960px)").matches;
 
     const closeInfoPanelSmooth = () => {
-        if (isLeafletMode) {
-            if (map && typeof map.closePopup === "function") {
-                map.closePopup();
-            }
-            return;
-        }
         if (!infoWindow) {
             return;
         }
@@ -2020,11 +2013,6 @@
         const position = { lat: Number(mainLoc.lat), lng: Number(mainLoc.lng) };
         activeId = mainLoc.id;
         setActiveCard(mainLoc.id);
-        if (isLeafletMode) {
-            map.setView([position.lat, position.lng], 12);
-            closeInfoPanelSmooth();
-            return;
-        }
         map.panTo(position);
         map.setZoom(12);
         if (infoWindow) {
@@ -2050,12 +2038,6 @@
             setActiveCard(mainLoc.id);
         }
 
-        if (isLeafletMode) {
-            map.setView([initialView.center.lat, initialView.center.lng], initialView.zoom);
-            closeInfoPanelSmooth();
-            return true;
-        }
-
         map.setCenter(initialView.center);
         map.setZoom(initialView.zoom);
         if (infoWindow) {
@@ -2066,12 +2048,6 @@
 
     const focusSeasonOverview = () => {
         if (!map || visibleLocations.length === 0) {
-            return;
-        }
-        if (isLeafletMode) {
-            const points = visibleLocations.map((loc) => [Number(loc.lat), Number(loc.lng)]);
-            map.fitBounds(points, { padding: [90, 90] });
-            closeInfoPanelSmooth();
             return;
         }
         const bounds = new google.maps.LatLngBounds();
@@ -2131,17 +2107,6 @@
 
     const clearRouteOverlay = () => {
         stopRouteAnimation();
-        if (isLeafletMode) {
-            [routeGlow, routeLine, routeFlow].forEach((layer) => {
-                if (layer && map && typeof map.removeLayer === "function") {
-                    map.removeLayer(layer);
-                }
-            });
-            routeGlow = null;
-            routeLine = null;
-            routeFlow = null;
-            return;
-        }
         [routeGlow, routeLine, routeFlow].forEach((polyline) => {
             if (polyline) {
                 polyline.setMap(null);
@@ -2153,24 +2118,12 @@
     };
 
     const createRouteOverlay = () => {
-        if (!map || routePath.length < 2) {
+        if (!map || !window.google || routePath.length < 2) {
             return;
         }
 
         clearRouteOverlay();
         const smoothRoutePath = createSmoothRoutePath(routePath);
-
-        if (isLeafletMode) {
-            routeLine = window.L.polyline(
-                smoothRoutePath.map((point) => [point.lat, point.lng]),
-                {
-                    color: "#f0c26a",
-                    weight: 4,
-                    opacity: 0.92
-                }
-            ).addTo(map);
-            return;
-        }
 
         routeGlow = new google.maps.Polyline({
             path: smoothRoutePath,
@@ -2318,15 +2271,6 @@
     let HtmlMapMarker = null;
 
     const clearMarkers = () => {
-        if (isLeafletMode) {
-            markers.forEach((entry) => {
-                if (entry.marker && map && typeof map.removeLayer === "function") {
-                    map.removeLayer(entry.marker);
-                }
-            });
-            markers = [];
-            return;
-        }
         markers.forEach((entry) => {
             entry.marker.setMap(null);
         });
@@ -2334,45 +2278,7 @@
     };
 
     const placeMarkers = () => {
-        if (!map) {
-            return;
-        }
-
-        if (isLeafletMode) {
-            clearMarkers();
-            const bounds = [];
-
-            visibleLocations.forEach((loc, index) => {
-                const position = [Number(loc.lat), Number(loc.lng)];
-                const markerHtml = `
-                    <div class="map-pin${loc.season === "always" ? " always" : ""}">
-                        ${loc.image ? `<img class="map-pin-image" src="${loc.image}" alt="${loc.title || ""}" />` : ""}
-                    </div>
-                `;
-                const marker = window.L.marker(position, {
-                    icon: window.L.divIcon({
-                        className: "leaflet-map-pin-wrap",
-                        html: markerHtml,
-                        iconSize: [loc.season === "always" ? 76 : 54, loc.season === "always" ? 76 : 54],
-                        iconAnchor: [loc.season === "always" ? 38 : 27, loc.season === "always" ? 38 : 27]
-                    })
-                });
-
-                marker.on("click", () => activateLocation(loc.id));
-                marker.addTo(map);
-                markers.push({ id: loc.id, marker, position });
-                bounds.push(position);
-            });
-
-            if (initialView && initialView.center && Number.isFinite(initialView.zoom)) {
-                return;
-            }
-
-            if (bounds.length > 1) {
-                map.fitBounds(bounds, { padding: [70, 70] });
-            } else if (bounds[0]) {
-                map.setView(bounds[0], 13);
-            }
+        if (!map || !window.google) {
             return;
         }
 
@@ -2467,9 +2373,7 @@
         activeId = id;
         setActiveCard(id);
 
-        const markerPosition = isLeafletMode
-            ? markerEntry.position
-            : (markerEntry.position || markerEntry.marker.getPosition());
+        const markerPosition = markerEntry.position || markerEntry.marker.getPosition();
         if (typeof window.openMapLightbox === "function" && (loc.lightboxSrc || loc.lightboxText)) {
             window.openMapLightbox({
                 src: loc.lightboxSrc || loc.image || "",
@@ -2484,22 +2388,6 @@
                 driveLabel: loc.driveLabel || (loc.walkNavigationUrl ? "Autom" : "Trasa"),
                 walkLabel: loc.walkLabel || "Pešo"
             });
-            return;
-        }
-
-        if (isLeafletMode) {
-            map.panTo(markerPosition);
-            const imageBlock = loc.image
-                ? `<img class="map-balloon-image" src="${loc.image}" alt="${loc.title || "Miesto"}" />`
-                : "";
-            markerEntry.marker.bindPopup(`
-                <div class="map-balloon">
-                    ${imageBlock}
-                    <h3>${loc.title || "Miesto"}</h3>
-                    <p>${loc.description || ""}</p>
-                    <a href="${loc.url || "#"}" target="_blank" rel="noopener noreferrer">Trasa</a>
-                </div>
-            `, { offset: [0, -8] }).openPopup();
             return;
         }
 
@@ -2588,19 +2476,11 @@
         if (!map) {
             return;
         }
-        if (isLeafletMode) {
-            map.zoomIn();
-            return;
-        }
         map.setZoom((map.getZoom() || 12) + 1);
     });
 
     zoomOutButton.addEventListener("click", () => {
         if (!map) {
-            return;
-        }
-        if (isLeafletMode) {
-            map.zoomOut();
             return;
         }
         map.setZoom((map.getZoom() || 12) - 1);
@@ -2623,7 +2503,6 @@
             visibleLocations = getVisibleLocations();
             renderList();
             placeMarkers();
-            createRouteOverlay();
             if (isFullscreenMap) {
                 focusSeasonOverview();
             } else {
@@ -2632,66 +2511,8 @@
         });
     });
 
-    const initLeafletMap = () => {
-        if (!window.L || allLocations.length === 0) {
-            return;
-        }
-
-        isLeafletMode = true;
-        mapCanvas.innerHTML = "";
-        map = window.L.map(mapCanvas, {
-            zoomControl: false,
-            minZoom: minAllowedZoom,
-            scrollWheelZoom: !isMobileLayout()
-        });
-
-        window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(map);
-
-        visibleLocations = getVisibleLocations();
-        placeMarkers();
-        createRouteOverlay();
-        status.hidden = true;
-        if (!focusInitialView()) {
-            focusMainLocation();
-        }
-    };
-
-    const loadLeafletFallback = () => {
-        if (window.L) {
-            initLeafletMap();
-            return;
-        }
-
-        if (!document.querySelector('link[data-map-provider="leaflet"]')) {
-            const leafletCss = document.createElement("link");
-            leafletCss.rel = "stylesheet";
-            leafletCss.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-            leafletCss.setAttribute("data-map-provider", "leaflet");
-            document.head.appendChild(leafletCss);
-        }
-
-        if (document.querySelector('script[data-map-provider="leaflet"]')) {
-            return;
-        }
-
-        const leafletScript = document.createElement("script");
-        leafletScript.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-        leafletScript.async = true;
-        leafletScript.defer = true;
-        leafletScript.setAttribute("data-map-provider", "leaflet");
-        leafletScript.onload = initLeafletMap;
-        leafletScript.onerror = () => {
-            status.hidden = false;
-            status.textContent = "Mapa sa nepodarilo nacitat ani cez OpenStreetMap fallback.";
-        };
-        document.head.appendChild(leafletScript);
-    };
-
     const initMap = () => {
         if (!window.google || !window.google.maps || allLocations.length === 0) {
-            loadLeafletFallback();
             return;
         }
 
@@ -2732,12 +2553,14 @@
     renderList();
 
     if (!apiKey) {
-        loadLeafletFallback();
+        status.hidden = false;
+        status.textContent = "Doplnte spravny Google Maps API kluc v mapa.html.";
         return;
     }
 
     window.gm_authFailure = () => {
-        loadLeafletFallback();
+        status.hidden = false;
+        status.textContent = "Google Maps key nema povoleny tento web v Website restrictions.";
     };
 
     if (window.google && window.google.maps) {
@@ -2751,7 +2574,8 @@
     script.async = true;
     script.defer = true;
     script.onerror = () => {
-        loadLeafletFallback();
+        status.hidden = false;
+        status.textContent = "Mapa sa nepodarilo nacitat. Skontrolujte API key, Website restrictions a Maps JavaScript API.";
     };
     document.head.appendChild(script);
 })();
