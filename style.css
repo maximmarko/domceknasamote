@@ -565,15 +565,19 @@ body.booking-nav-accent-on .booking-nav-link {
 .hero-primary-cta {
     animation: mapCtaPulse 2.2s ease-in-out infinite;
     overflow: hidden;
+    isolation: isolate;
 }
 
-.hero-primary-cta::after {
+.hero-primary-cta::before {
     content: "";
     position: absolute;
     top: -40%;
     left: -30%;
     width: 34%;
     height: 180%;
+    border: 0;
+    border-radius: inherit;
+    clip-path: none;
     background: linear-gradient(
         90deg,
         rgba(255, 255, 255, 0),
@@ -585,13 +589,17 @@ body.booking-nav-accent-on .booking-nav-link {
     pointer-events: none;
 }
 
+.hero-primary-cta::after {
+    display: none;
+}
+
 .hero-primary-cta:hover,
 .hero-primary-cta:focus-visible {
     animation-play-state: paused;
 }
 
-.hero-primary-cta:hover::after,
-.hero-primary-cta:focus-visible::after {
+.hero-primary-cta:hover::before,
+.hero-primary-cta:focus-visible::before {
     animation-play-state: paused;
 }
 
