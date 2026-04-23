@@ -563,43 +563,18 @@ body.booking-nav-accent-on .booking-nav-link {
 }
 
 .hero-primary-cta {
-    animation: mapCtaPulse 2.2s ease-in-out infinite;
+    animation: mapCtaPulse 2.2s ease-in-out infinite, mapCtaSheenBg 2.8s ease-in-out infinite;
+    background-image:
+        linear-gradient(120deg, rgba(255, 255, 255, 0) 22%, rgba(255, 255, 255, 0.34) 33%, rgba(255, 255, 255, 0) 44%),
+        linear-gradient(135deg, var(--gold), var(--gold-dark));
+    background-size: 240% 100%, 100% 100%;
+    background-position: -170% 0, 0 0;
+    background-repeat: no-repeat;
     overflow: hidden;
-    isolation: isolate;
-}
-
-.hero-primary-cta::before {
-    content: "";
-    position: absolute;
-    top: -40%;
-    left: -30%;
-    width: 34%;
-    height: 180%;
-    border: 0;
-    border-radius: inherit;
-    clip-path: none;
-    background: linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0),
-        rgba(255, 255, 255, 0.42),
-        rgba(255, 255, 255, 0)
-    );
-    transform: rotate(20deg);
-    animation: mapCtaSheen 2.6s ease-in-out infinite;
-    pointer-events: none;
-}
-
-.hero-primary-cta::after {
-    display: none;
 }
 
 .hero-primary-cta:hover,
 .hero-primary-cta:focus-visible {
-    animation-play-state: paused;
-}
-
-.hero-primary-cta:hover::before,
-.hero-primary-cta:focus-visible::before {
     animation-play-state: paused;
 }
 
@@ -3204,6 +3179,22 @@ body.booking-nav-accent-on .booking-nav-link {
     100% {
         left: 112%;
         opacity: 0;
+    }
+}
+
+@keyframes mapCtaSheenBg {
+    0%,
+    100% {
+        background-position: -170% 0, 0 0;
+    }
+    18% {
+        background-position: -170% 0, 0 0;
+    }
+    46% {
+        background-position: 165% 0, 0 0;
+    }
+    100% {
+        background-position: 165% 0, 0 0;
     }
 }
 
