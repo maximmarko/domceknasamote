@@ -1141,6 +1141,7 @@
 
 (() => {
     const video = document.querySelector("#intro-video");
+    const fallbackMessage = document.querySelector("#intro-video-fallback");
     if (!video) {
         return;
     }
@@ -1155,6 +1156,18 @@
             video.controls = false;
         }
     };
+
+    video.addEventListener("loadeddata", () => {
+        if (fallbackMessage) {
+            fallbackMessage.hidden = true;
+        }
+    });
+
+    video.addEventListener("error", () => {
+        if (fallbackMessage) {
+            fallbackMessage.hidden = false;
+        }
+    });
 
     document.addEventListener("fullscreenchange", updateFullscreenState);
     updateFullscreenState();

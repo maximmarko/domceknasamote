@@ -662,6 +662,18 @@ body.booking-nav-accent-on .booking-nav-link {
     object-fit: cover;
 }
 
+.video-fallback-message {
+    margin: 0;
+    padding: 16px 18px 20px;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.82);
+    background: linear-gradient(180deg, rgba(14, 17, 16, 0) 0%, rgba(14, 17, 16, 0.92) 100%);
+}
+
+.video-fallback-message a {
+    color: #f2e7d7;
+}
+
 .section-heading.center {
     text-align: center;
     margin: 0 auto;
