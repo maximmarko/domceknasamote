@@ -1401,7 +1401,7 @@ body.booking-nav-accent-on .booking-nav-link {
 
 .calendar-cell[data-date] {
     cursor: pointer;
-    touch-action: none;
+    touch-action: manipulation;
 }
 
 .calendar-cell.available {

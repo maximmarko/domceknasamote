@@ -116,6 +116,9 @@
             maximumFractionDigits: 0,
         }).format(value);
 
+    const usesTouchCalendarSelection = () =>
+        window.matchMedia?.("(hover: none), (pointer: coarse)")?.matches || false;
+
     const setReservationStatus = (state, message) => {
         if (!reservationStatus) {
             return;
@@ -342,11 +345,15 @@
         }
 
         if (start) {
-            selectionStatus.textContent = `Začiatok pobytu: ${formatDisplayDate(start)}. Vyberte alebo potiahnite po posledný deň pobytu.`;
+            selectionStatus.textContent = usesTouchCalendarSelection()
+                ? `Začiatok pobytu: ${formatDisplayDate(start)}. Kliknite na posledný deň pobytu.`
+                : `Začiatok pobytu: ${formatDisplayDate(start)}. Vyberte alebo potiahnite po posledný deň pobytu.`;
             return;
         }
 
-        selectionStatus.textContent = "Kliknite alebo potiahnite po voľných dňoch. Zobrazené sú dva mesiace naraz pre jednoduchší výber termínu.";
+        selectionStatus.textContent = usesTouchCalendarSelection()
+            ? "Kliknite na prvý a posledný voľný deň pobytu. Zobrazené sú dva mesiace naraz pre jednoduchší výber termínu."
+            : "Kliknite alebo potiahnite po voľných dňoch. Zobrazené sú dva mesiace naraz pre jednoduchší výber termínu.";
     };
 
     const updateBookingPanel = () => {
@@ -910,6 +917,10 @@
     });
 
     calendarGrid.addEventListener("pointerdown", (event) => {
+        if (event.pointerType !== "mouse") {
+            return;
+        }
+
         if (event.pointerType === "mouse" && event.button !== 0) {
             return;
         }
@@ -943,6 +954,10 @@
     });
 
     window.addEventListener("pointerup", (event) => {
+        if (!pointerSelectionActive && activePointerId === null) {
+            return;
+        }
+
         if (activePointerId !== null && event.pointerId !== activePointerId) {
             return;
         }
@@ -950,6 +965,10 @@
     });
 
     window.addEventListener("pointercancel", (event) => {
+        if (!pointerSelectionActive && activePointerId === null) {
+            return;
+        }
+
         if (activePointerId !== null && event.pointerId !== activePointerId) {
             return;
         }
