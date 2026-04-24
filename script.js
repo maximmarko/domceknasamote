@@ -956,32 +956,6 @@
         cancelPointerSelection();
     });
 
-    document.addEventListener("click", (event) => {
-        if (isMobileLayout()) {
-            return;
-        }
-
-        const target = event.target;
-        if (!(target instanceof Element)) {
-            return;
-        }
-
-        if (!selectedStart && !selectedEnd) {
-            return;
-        }
-
-        const clickedInsideInteractiveArea =
-            target.closest("[data-date]") ||
-            target.closest("[data-action]") ||
-            target.closest("#booking-panel") ||
-            target.closest("#reservation-form-section");
-
-        if (!clickedInsideInteractiveArea) {
-            resetSelection();
-            renderCalendar();
-        }
-    });
-
     bookingGuests?.addEventListener("change", updateBookingPanel);
     bookingGuests?.addEventListener("change", () => {
         hideMobileBookingHint();
