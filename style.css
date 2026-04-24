@@ -28,6 +28,7 @@ body {
     color: var(--ink);
     background: var(--sand);
     line-height: 1.6;
+    overflow-x: hidden;
 }
 
 a {
@@ -55,6 +56,7 @@ a {
     display: flex;
     align-items: center;
     gap: 14px;
+    flex: 0 0 auto;
     font-family: "Work Sans", "Segoe UI", sans-serif;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -66,7 +68,12 @@ a {
 }
 
 .topbar .brand-logo {
-    height: 64px;
+    display: block;
+    width: 116px;
+    height: auto;
+    max-height: 64px;
+    object-fit: contain;
+    flex: 0 0 auto;
     transform: translateY(0);
 }
 
@@ -141,6 +148,7 @@ a {
     stroke-linejoin: round;
     stroke-dasharray: 0 100;
     stroke-dashoffset: 0;
+    opacity: 0;
 }
 
 body.booking-nav-accent-on .booking-nav-link-orbit {
@@ -148,7 +156,7 @@ body.booking-nav-accent-on .booking-nav-link-orbit {
 }
 
 body.booking-nav-accent-on .booking-nav-link-orbit rect {
-    animation: bookingNavTrace 1.7s cubic-bezier(0.32, 0.08, 0.2, 1) 1;
+    animation: bookingNavTrace 1.7s linear 1 forwards;
 }
 
 body.booking-nav-accent-on .booking-nav-link-orbit {
@@ -189,30 +197,20 @@ body.booking-nav-accent-on .booking-nav-link {
         stroke-dashoffset: 100;
         opacity: 0;
     }
-    10% {
-        opacity: 0.18;
-    }
-    24% {
+    12% {
         stroke-dasharray: 16 84;
+        stroke-dashoffset: 100;
         opacity: 1;
     }
-    78% {
+    82% {
         stroke-dasharray: 16 84;
-        opacity: 1;
-    }
-    92% {
-        stroke-dasharray: 10 90;
-        opacity: 1;
-    }
-    98% {
-        stroke-dasharray: 4 96;
         stroke-dashoffset: 0;
         opacity: 1;
     }
     100% {
         stroke-dasharray: 0 100;
-        stroke-dashoffset: 0;
-        opacity: 1;
+        stroke-dashoffset: -16;
+        opacity: 0;
     }
 }
 
@@ -816,6 +814,8 @@ body.booking-nav-accent-on .booking-nav-link {
     margin-top: 36px;
     display: grid;
     align-items: center;
+    width: 100%;
+    min-width: 0;
 }
 
 .social-arrow {
@@ -895,11 +895,17 @@ body.booking-nav-accent-on .booking-nav-link {
     grid-auto-flow: column;
     grid-auto-columns: clamp(260px, 18vw, 320px);
     gap: 20px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     overflow-x: auto;
     padding-bottom: 12px;
-    scroll-snap-type: x mandatory;
+    scroll-snap-type: none;
     scrollbar-width: none;
-    touch-action: pan-y;
+    touch-action: pan-x pan-y;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-inline: contain;
+    justify-content: start;
     cursor: grab;
 }
 
@@ -929,7 +935,7 @@ body.booking-nav-accent-on .booking-nav-link {
     background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.85), rgba(242, 234, 224, 0.9));
     border: none;
     box-shadow: none;
-    scroll-snap-align: start;
+    scroll-snap-align: none;
     display: grid;
     place-items: center;
     color: #5a6059;
@@ -3690,6 +3696,14 @@ body.booking-nav-accent-on .booking-nav-link {
         padding-top: 140px;
     }
 
+    .activities-hero {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .activities-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .mapa-shell {
         padding-top: 140px;
     }
@@ -3711,6 +3725,14 @@ body.booking-nav-accent-on .booking-nav-link {
     .mapa-panel {
         min-height: auto;
         height: auto;
+        grid-template-rows: auto;
+        overflow: visible;
+    }
+
+    .mapa-list {
+        overflow: visible;
+        overscroll-behavior: auto;
+        padding-right: 0;
     }
 
     .kontakt-panel {
@@ -3722,6 +3744,7 @@ body.booking-nav-accent-on .booking-nav-link {
     .mapa-canvas {
         min-height: 460px;
         height: auto;
+        touch-action: pan-y;
     }
 
     .kontakt-map-wrap,
@@ -3758,11 +3781,15 @@ body.booking-nav-accent-on .booking-nav-link {
     }
 
     .topbar .brand {
-        height: 52px;
+        height: 58px;
+        max-width: 124px;
+        overflow: visible;
     }
 
     .topbar .brand-logo {
-        height: 52px;
+        width: 106px;
+        height: auto;
+        max-height: 58px;
     }
 
     .menu-toggle {
@@ -3932,8 +3959,10 @@ body.booking-nav-accent-on .booking-nav-link {
 
     .hero {
         min-height: 100svh;
-        padding: 132px 6vw 56px;
+        padding: 128px 6vw 54px;
         align-items: end;
+        justify-items: center;
+        text-align: center;
     }
 
     .hero-slider::after {
@@ -3941,13 +3970,16 @@ body.booking-nav-accent-on .booking-nav-link {
     }
 
     .hero-content {
+        width: min(100%, 420px);
         max-width: none;
         gap: 16px;
+        justify-items: center;
     }
 
     .eyebrow {
         font-size: 0.76rem;
-        letter-spacing: 0.34em;
+        letter-spacing: 0.22em;
+        text-align: center;
     }
 
     .hero-line {
@@ -3967,10 +3999,12 @@ body.booking-nav-accent-on .booking-nav-link {
         font-size: 1rem;
         line-height: 1.55;
         color: rgba(255, 255, 255, 0.84);
+        margin-inline: auto;
     }
 
     .hero-cta {
         width: 100%;
+        max-width: 320px;
         gap: 12px;
         flex-direction: column;
         align-items: stretch;
@@ -3992,10 +4026,14 @@ body.booking-nav-accent-on .booking-nav-link {
 
     .section {
         padding: 72px 6vw;
+        text-align: center;
     }
 
     .section-heading {
         gap: 12px;
+        max-width: 100%;
+        margin-inline: auto;
+        justify-items: center;
     }
 
     .section h2 {
@@ -4010,21 +4048,29 @@ body.booking-nav-accent-on .booking-nav-link {
     .faq-item p {
         font-size: 1rem;
         line-height: 1.65;
+        max-width: 36rem;
+        margin-inline: auto;
     }
 
     .intro-grid,
     .projects-content,
     .split {
+        grid-template-columns: minmax(0, 1fr);
         gap: 24px;
+        justify-items: center;
     }
 
     .intro-copy,
     .projects-meta,
     .split-text {
+        width: min(100%, 520px);
         gap: 14px;
+        justify-items: center;
+        text-align: center;
     }
 
     .intro-video {
+        width: min(100%, 520px);
         min-height: 220px;
         aspect-ratio: 16 / 9;
         border-radius: 22px;
@@ -4036,6 +4082,7 @@ body.booking-nav-accent-on .booking-nav-link {
 
     .projects-image,
     .split-image {
+        width: min(100%, 520px);
         min-height: 240px;
         border-radius: 22px;
         aspect-ratio: 4 / 3;
@@ -4047,17 +4094,29 @@ body.booking-nav-accent-on .booking-nav-link {
         text-wrap: balance;
     }
 
+    .projects-meta .projects-eyebrow {
+        justify-self: center;
+    }
+
     .wide-btn {
+        width: min(100%, 320px);
         min-height: 54px;
+        justify-self: center;
     }
 
     .social-carousel {
+        width: 100%;
         margin-top: 28px;
+        justify-items: center;
     }
 
     .social-strip {
-        grid-auto-columns: 78vw;
-        gap: 14px;
+        width: 100%;
+        grid-auto-columns: min(82vw, 320px);
+        gap: 16px;
+        justify-content: start;
+        scroll-snap-type: none;
+        padding-inline: max(0px, calc((100vw - min(82vw, 320px)) / 2 - 6vw));
     }
 
     .social-header .section-heading {
@@ -4072,13 +4131,36 @@ body.booking-nav-accent-on .booking-nav-link {
         padding-bottom: 160px;
     }
 
+    .activities-shell {
+        padding: 128px 6vw 96px;
+        gap: 44px;
+    }
+
+    .activities-hero-copy,
+    .activities-section .section-heading {
+        justify-items: center;
+        text-align: center;
+        margin-inline: auto;
+    }
+
+    .activities-hero-card {
+        width: min(100%, 520px);
+        text-align: center;
+    }
+
+    .activities-grid {
+        grid-template-columns: minmax(0, 1fr);
+        width: min(100%, 520px);
+        margin-inline: auto;
+    }
+
     .kontakt-shell {
         padding-bottom: 160px;
     }
 
     .mapa-canvas-wrap,
     .mapa-canvas {
-        min-height: 380px;
+        min-height: 340px;
     }
 
     .kontakt-map-wrap,
@@ -4131,8 +4213,10 @@ body.booking-nav-accent-on .booking-nav-link {
     }
 
     .social-card {
-        height: 300px;
+        height: min(112vw, 420px);
+        min-height: 360px;
         border-radius: 18px;
+        scroll-snap-align: none;
     }
 
     .social-card::after {
@@ -4145,8 +4229,11 @@ body.booking-nav-accent-on .booking-nav-link {
     }
 
     .faq-list {
+        width: min(100%, 680px);
         margin-top: 28px;
         gap: 14px;
+        margin-inline: auto;
+        text-align: left;
     }
 
     .faq-item summary {

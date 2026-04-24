@@ -957,6 +957,10 @@
     });
 
     document.addEventListener("click", (event) => {
+        if (isMobileLayout()) {
+            return;
+        }
+
         const target = event.target;
         if (!(target instanceof Element)) {
             return;
@@ -1537,6 +1541,7 @@
         if (!amount) {
             return;
         }
+        pauseAutoplayForUser();
         strip.scrollBy({ left: amount * direction, behavior: "smooth" });
     };
 
@@ -1552,6 +1557,19 @@
     let velocityX = 0;
     let momentumFrame = null;
     let momentumLastTime = 0;
+    let autoplayTimer = null;
+    let autoplayLastTime = 0;
+    let autoplayDirection = 1;
+    let autoplayRetryTimer = null;
+    let autoplayWaitUntil = 0;
+    let resumeAutoplayTimer = null;
+    let carouselInView = true;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchPausedAutoplay = false;
+    const autoplaySpeed = 0.065;
+    const autoplayEdgePause = 1200;
+    const autoplayResumeDelay = 30000;
 
     const stopMomentum = () => {
         if (momentumFrame !== null) {
@@ -1560,15 +1578,83 @@
         }
     };
 
-    const snapToNearestCard = () => {
-        const step = getCardStep();
-        if (!step) {
+    const stopAutoplay = () => {
+        if (autoplayTimer !== null) {
+            window.clearInterval(autoplayTimer);
+            autoplayTimer = null;
+        }
+        if (autoplayRetryTimer !== null) {
+            window.clearTimeout(autoplayRetryTimer);
+            autoplayRetryTimer = null;
+        }
+    };
+
+    const startAutoplay = () => {
+        stopAutoplay();
+        autoplayLastTime = performance.now();
+        autoplayWaitUntil = 0;
+
+        const stepAutoplay = () => {
+            const maxScroll = Math.max(0, strip.scrollWidth - strip.clientWidth);
+            if (maxScroll <= 1) {
+                stopAutoplay();
+                autoplayRetryTimer = window.setTimeout(startAutoplay, 500);
+                return;
+            }
+
+            const now = performance.now();
+            if (now < autoplayWaitUntil) {
+                autoplayLastTime = now;
+                return;
+            }
+
+            const dt = now - autoplayLastTime;
+            autoplayLastTime = now;
+            let nextScroll = strip.scrollLeft + autoplayDirection * autoplaySpeed * dt;
+
+            if (nextScroll >= maxScroll) {
+                nextScroll = maxScroll;
+                autoplayDirection = -1;
+                autoplayWaitUntil = now + autoplayEdgePause;
+            } else if (nextScroll <= 0) {
+                nextScroll = 0;
+                autoplayDirection = 1;
+                autoplayWaitUntil = now + autoplayEdgePause;
+            }
+
+            strip.scrollTo({ left: nextScroll, behavior: "auto" });
+            updateProgress();
+        };
+
+        stepAutoplay();
+        autoplayTimer = window.setInterval(stepAutoplay, 16);
+    };
+
+    const scheduleAutoplayStart = (delay = 120) => {
+        if (!carouselInView) {
             return;
         }
-        const maxScroll = Math.max(0, strip.scrollWidth - strip.clientWidth);
-        const snapped = Math.round(strip.scrollLeft / step) * step;
-        const target = Math.min(maxScroll, Math.max(0, snapped));
-        strip.scrollTo({ left: target, behavior: "smooth" });
+        stopAutoplay();
+        autoplayRetryTimer = window.setTimeout(() => {
+            autoplayRetryTimer = null;
+            startAutoplay();
+        }, delay);
+    };
+
+    const pauseAutoplayForUser = () => {
+        stopAutoplay();
+        if (resumeAutoplayTimer !== null) {
+            window.clearTimeout(resumeAutoplayTimer);
+        }
+        resumeAutoplayTimer = window.setTimeout(() => {
+            resumeAutoplayTimer = null;
+            startAutoplay();
+        }, autoplayResumeDelay);
+    };
+
+    const snapToNearestCard = () => {
+        updateProgress();
+        updateArrowState();
     };
 
     const startMomentum = () => {
@@ -1610,6 +1696,10 @@
         if (event.pointerType === "mouse" && event.button !== 0) {
             return;
         }
+        if (event.pointerType !== "mouse") {
+            return;
+        }
+        pauseAutoplayForUser();
         stopMomentum();
         pointerDown = true;
         dragging = false;
@@ -1675,7 +1765,46 @@
         finishPointerInteraction(false);
     };
 
+    const onTouchStart = (event) => {
+        const touch = event.touches[0];
+        if (!touch) {
+            return;
+        }
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        touchPausedAutoplay = false;
+    };
+
+    const onTouchMove = (event) => {
+        const touch = event.touches[0];
+        if (!touch || touchPausedAutoplay) {
+            return;
+        }
+
+        const deltaX = touch.clientX - touchStartX;
+        const deltaY = touch.clientY - touchStartY;
+        if (Math.abs(deltaX) > dragThreshold && Math.abs(deltaX) > Math.abs(deltaY)) {
+            touchPausedAutoplay = true;
+            pauseAutoplayForUser();
+        }
+    };
+
+    const onTouchEnd = () => {
+        touchPausedAutoplay = false;
+    };
+
+    const onWheel = (event) => {
+        if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
+            pauseAutoplayForUser();
+        }
+    };
+
     strip.addEventListener("pointerdown", onPointerDown);
+    strip.addEventListener("touchstart", onTouchStart, { passive: true });
+    strip.addEventListener("touchmove", onTouchMove, { passive: true });
+    strip.addEventListener("touchend", onTouchEnd, { passive: true });
+    strip.addEventListener("touchcancel", onTouchEnd, { passive: true });
+    strip.addEventListener("wheel", onWheel, { passive: true });
     strip.addEventListener("pointermove", onPointerMove);
     strip.addEventListener("pointerup", onPointerEnd);
     strip.addEventListener("pointercancel", onPointerCancel);
@@ -1689,6 +1818,7 @@
     strip.addEventListener("dragstart", (event) => {
         event.preventDefault();
     });
+    strip.addEventListener("click", pauseAutoplayForUser, true);
 
     strip.addEventListener("click", (event) => {
         if (!suppressClick) {
@@ -1724,9 +1854,30 @@
     window.addEventListener("resize", () => {
         updateProgress();
         updateArrowState();
+        if (resumeAutoplayTimer === null) {
+            scheduleAutoplayStart();
+        }
     });
+    if ("IntersectionObserver" in window) {
+        const carouselObserver = new IntersectionObserver((entries) => {
+            const entry = entries[0];
+            carouselInView = Boolean(entry?.isIntersecting);
+            if (carouselInView && resumeAutoplayTimer === null) {
+                scheduleAutoplayStart(80);
+            } else if (!carouselInView) {
+                stopAutoplay();
+            }
+        }, { threshold: 0.15 });
+        carouselObserver.observe(strip);
+    }
     updateProgress();
     updateArrowState();
+    scheduleAutoplayStart(0);
+    window.addEventListener("load", () => {
+        if (resumeAutoplayTimer === null) {
+            scheduleAutoplayStart();
+        }
+    }, { once: true });
 })();
 
 (() => {
@@ -1932,7 +2083,8 @@
     let routeLine = null;
     let routeFlow = null;
     let routeAnimationFrame = null;
-    const minAllowedZoom = 7;
+    const configuredMinZoom = Number(cfg.minZoom);
+    const minAllowedZoom = Number.isFinite(configuredMinZoom) ? configuredMinZoom : 7;
 
     const mapStyle = [
         { elementType: "geometry", stylers: [{ color: "#e8edf3" }] },
@@ -2242,6 +2394,10 @@
         fullscreenLabel.textContent = isFullscreenMap ? "Sp\u00E4\u0165" : "Cel\u00E1 mapa";
         window.setTimeout(() => {
             if (map && window.google && window.google.maps) {
+                map.setOptions({
+                    gestureHandling: isFullscreenMap ? "greedy" : "cooperative",
+                    scrollwheel: isFullscreenMap
+                });
                 google.maps.event.trigger(map, "resize");
                 if (activeId) {
                     const activeLoc = visibleLocations.find((loc) => loc.id === activeId);
@@ -2483,7 +2639,7 @@
         if (!map) {
             return;
         }
-        map.setZoom((map.getZoom() || 12) - 1);
+        map.setZoom(Math.max(minAllowedZoom, (map.getZoom() || 12) - 1));
     });
 
     document.addEventListener("keydown", (event) => {
@@ -2528,8 +2684,8 @@
             disableDefaultUI: true,
             zoomControl: false,
             clickableIcons: false,
-            gestureHandling: isMobileLayout() ? "greedy" : "cooperative",
-            scrollwheel: !isMobileLayout(),
+            gestureHandling: "cooperative",
+            scrollwheel: false,
             ...(mapTypeId === "roadmap" ? { styles: mapStyle } : {}),
             ...(mapId ? { mapId } : {})
         });
