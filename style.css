@@ -284,11 +284,11 @@ body.booking-nav-accent-on .booking-nav-link {
 .mobile-nav {
     display: flex;
     position: fixed;
-    top: 88px;
+    top: 100px;
     left: 0;
     right: 0;
     bottom: 0;
-    padding: 32px 8vw 40px;
+    padding: 64px 8vw 40px;
     background:
         linear-gradient(135deg, rgba(198, 164, 105, 0.68), rgba(169, 130, 69, 0.6)),
         rgba(18, 20, 20, 0.12);
@@ -342,6 +342,14 @@ body.booking-nav-accent-on .booking-nav-link {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
+}
+
+.menu-open .topbar {
+    background:
+        linear-gradient(135deg, rgba(198, 164, 105, 0.68), rgba(169, 130, 69, 0.6)),
+        rgba(18, 20, 20, 0.12);
+    -webkit-backdrop-filter: blur(18px) saturate(125%);
+    backdrop-filter: blur(18px) saturate(125%);
 }
 
 .menu-open .mobile-nav a {
@@ -2172,17 +2180,19 @@ body.booking-nav-accent-on .booking-nav-link {
 
 .contact-strip {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: minmax(260px, 1fr) auto minmax(260px, 1fr);
     align-items: center;
-    gap: 24px;
+    gap: 32px;
     padding: 28px 6vw 40px;
     background: #121414;
+    width: 100%;
 }
 
 .contact-social {
     display: flex;
     gap: 12px;
     justify-content: flex-end;
+    justify-self: end;
 }
 
 .social-icon {
@@ -2231,8 +2241,9 @@ body.booking-nav-accent-on .booking-nav-link {
     font-weight: 600;
     color: #f7f4ee;
     justify-content: center;
-    align-items: center;
-    text-align: center;
+    align-items: flex-start;
+    text-align: left;
+    justify-self: start;
 }
 
 .contact-label {
@@ -2258,20 +2269,26 @@ body.booking-nav-accent-on .booking-nav-link {
 }
 
 .footer-bottom {
-    margin-top: 0;
+    width: 100%;
+    margin: 0 auto;
     padding: 18px 6vw 26px;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
     gap: 12px;
     font-size: 0.85rem;
     opacity: 0.7;
     border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
+.footer-bottom > span:first-child {
+    justify-self: start;
+}
+
 .footer-legal-links {
     display: flex;
     flex-wrap: wrap;
+    justify-self: end;
     gap: 12px 20px;
 }
 
@@ -4189,6 +4206,7 @@ body.booking-nav-accent-on .booking-nav-link {
         min-height: 240px;
         border-radius: 22px;
         aspect-ratio: 4 / 3;
+        order: -1;
     }
 
     .projects-meta h3 {
@@ -4394,5 +4412,32 @@ body.booking-nav-accent-on .booking-nav-link {
     .js [data-animate] {
         opacity: 1;
         transform: none;
+    }
+}
+
+@media (max-width: 820px) {
+    .contact-strip {
+        width: 100%;
+        max-width: 100%;
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+        padding-inline: 6vw;
+    }
+
+    .contact-social {
+        justify-self: center;
+        justify-content: center;
+    }
+
+    .footer-bottom {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+    }
+
+    .footer-bottom > span:first-child,
+    .footer-legal-links {
+        justify-self: center;
     }
 }

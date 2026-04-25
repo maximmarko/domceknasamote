@@ -1538,12 +1538,13 @@
         strip.scrollBy({ left: amount * direction, behavior: "smooth" });
     };
 
-    const dragThreshold = 8;
+    const dragThreshold = 14;
     let pointerId = null;
     let pointerDown = false;
     let dragging = false;
     let suppressClick = false;
     let startX = 0;
+    let startY = 0;
     let startScrollLeft = 0;
     let lastX = 0;
     let lastMoveTime = 0;
@@ -1698,12 +1699,12 @@
         dragging = false;
         pointerId = event.pointerId;
         startX = event.clientX;
+        startY = event.clientY;
         startScrollLeft = strip.scrollLeft;
         lastX = event.clientX;
         lastMoveTime = performance.now();
         velocityX = 0;
         strip.classList.add("is-pointer-down");
-        strip.setPointerCapture(event.pointerId);
     };
 
     const onPointerMove = (event) => {
@@ -1712,7 +1713,8 @@
         }
 
         const deltaX = event.clientX - startX;
-        if (!dragging && Math.abs(deltaX) > dragThreshold) {
+        const deltaY = event.clientY - (startY || event.clientY);
+        if (!dragging && Math.abs(deltaX) > dragThreshold && Math.abs(deltaX) > Math.abs(deltaY)) {
             dragging = true;
             suppressClick = true;
             strip.classList.add("is-dragging");
@@ -1811,21 +1813,18 @@
     strip.addEventListener("dragstart", (event) => {
         event.preventDefault();
     });
-    strip.addEventListener("click", pauseAutoplayForUser, true);
+    strip.addEventListener("click", pauseAutoplayForUser);
 
     strip.addEventListener("click", (event) => {
-        if (!suppressClick) {
-            return;
+        if (suppressClick) {
+            event.preventDefault();
+            event.stopPropagation();
         }
-        event.preventDefault();
-        event.stopPropagation();
         suppressClick = false;
-    }, true);
+    });
 
     strip.addEventListener("pointerup", () => {
-        window.setTimeout(() => {
-            suppressClick = false;
-        }, 0);
+        window.setTimeout(() => { suppressClick = false; }, 50);
     });
 
     if (hasArrowControls) {
@@ -2734,21 +2733,24 @@
     const items = Array.from(section.querySelectorAll(".highlight-item"));
     if (items.length === 0) return;
 
-    // column-by-column order (3 cols)
-    const cols = 3;
-    const rows = Math.ceil(items.length / cols);
-    const sequence = [];
-    for (let col = 0; col < cols; col++) {
-        for (let row = 0; row < rows; row++) {
-            const idx = row * cols + col;
-            if (idx < items.length) sequence.push(idx);
-        }
-    }
-
     const TRANSITION = 700;
     const HOLD = 600;
     const STEP = TRANSITION + HOLD;
     const PAUSE = 5000;
+
+    // Build column-by-column sequence based on actual rendered positions
+    function buildSequence() {
+        const columns = new Map();
+        items.forEach((item, i) => {
+            const left = Math.round(item.getBoundingClientRect().left / 100) * 100;
+            if (!columns.has(left)) columns.set(left, []);
+            columns.get(left).push(i);
+        });
+        const sortedCols = Array.from(columns.keys()).sort((a, b) => a - b);
+        const seq = [];
+        sortedCols.forEach(key => columns.get(key).forEach(idx => seq.push(idx)));
+        return seq;
+    }
 
     // set initial hidden state for entry animation
     items.forEach(item => {
@@ -2767,7 +2769,6 @@
 
         const totalEntry = items.length * 70 + 650;
         setTimeout(() => {
-            // hand off to CSS class — remove inline transition so pop loop's CSS takes over
             items.forEach(item => {
                 item.style.transition = "";
                 item.style.opacity = "";
@@ -2778,6 +2779,7 @@
     }
 
     function runCycle() {
+        const sequence = buildSequence();
         sequence.forEach((itemIdx, i) => {
             setTimeout(() => items[itemIdx].classList.add("hl-pop"), i * STEP);
             setTimeout(() => items[itemIdx].classList.remove("hl-pop"), i * STEP + STEP);
