@@ -2728,3 +2728,70 @@
     };
     document.head.appendChild(script);
 })();
+(() => {
+    const section = document.querySelector(".highlights");
+    if (!section) return;
+    const items = Array.from(section.querySelectorAll(".highlight-item"));
+    if (items.length === 0) return;
+
+    // column-by-column order (3 cols)
+    const cols = 3;
+    const rows = Math.ceil(items.length / cols);
+    const sequence = [];
+    for (let col = 0; col < cols; col++) {
+        for (let row = 0; row < rows; row++) {
+            const idx = row * cols + col;
+            if (idx < items.length) sequence.push(idx);
+        }
+    }
+
+    const TRANSITION = 700;
+    const HOLD = 600;
+    const STEP = TRANSITION + HOLD;
+    const PAUSE = 5000;
+
+    // set initial hidden state for entry animation
+    items.forEach(item => {
+        item.style.opacity = "0";
+        item.style.transform = "translateY(10px)";
+        item.style.transition = "opacity 0.55s ease, transform 0.55s ease";
+    });
+
+    function runEntry() {
+        items.forEach((item, i) => {
+            setTimeout(() => {
+                item.style.opacity = "1";
+                item.style.transform = "translateY(0)";
+            }, i * 70);
+        });
+
+        const totalEntry = items.length * 70 + 650;
+        setTimeout(() => {
+            // hand off to CSS class — remove inline transition so pop loop's CSS takes over
+            items.forEach(item => {
+                item.style.transition = "";
+                item.style.opacity = "";
+                item.style.transform = "";
+            });
+            runCycle();
+        }, totalEntry);
+    }
+
+    function runCycle() {
+        sequence.forEach((itemIdx, i) => {
+            setTimeout(() => items[itemIdx].classList.add("hl-pop"), i * STEP);
+            setTimeout(() => items[itemIdx].classList.remove("hl-pop"), i * STEP + STEP);
+        });
+        const cycleDuration = (sequence.length - 1) * STEP + STEP + TRANSITION + PAUSE;
+        setTimeout(runCycle, cycleDuration);
+    }
+
+    const obs = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+            runEntry();
+            obs.unobserve(section);
+        }
+    }, { threshold: 0.15 });
+
+    obs.observe(section);
+})();
