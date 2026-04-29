@@ -2738,18 +2738,27 @@
     const STEP = TRANSITION + HOLD;
     const PAUSE = 5000;
 
-    // Build column-by-column sequence based on actual rendered positions
+    // Desktop reads this section as columns; compact layouts read it by rows.
     function buildSequence() {
-        const columns = new Map();
-        items.forEach((item, i) => {
-            const left = Math.round(item.getBoundingClientRect().left / 100) * 100;
-            if (!columns.has(left)) columns.set(left, []);
-            columns.get(left).push(i);
+        const positionedItems = items.map((item, i) => {
+            const rect = item.getBoundingClientRect();
+            return {
+                index: i,
+                top: Math.round(rect.top / 10) * 10,
+                left: Math.round(rect.left / 10) * 10,
+            };
         });
-        const sortedCols = Array.from(columns.keys()).sort((a, b) => a - b);
-        const seq = [];
-        sortedCols.forEach(key => columns.get(key).forEach(idx => seq.push(idx)));
-        return seq;
+        const columnCount = new Set(positionedItems.map(item => item.left)).size;
+        const isDesktopGrid = columnCount >= 3;
+
+        return positionedItems
+            .sort((a, b) => {
+                if (isDesktopGrid) {
+                    return (a.left - b.left) || (a.top - b.top);
+                }
+                return (a.top - b.top) || (a.left - b.left);
+            })
+            .map(item => item.index);
     }
 
     // set initial hidden state for entry animation
