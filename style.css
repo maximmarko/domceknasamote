@@ -522,7 +522,7 @@ body.booking-nav-accent-on .booking-nav-link {
 .hero-content {
     position: relative;
     z-index: 1;
-    max-width: 640px;
+    max-width: 760px;
     display: grid;
     gap: 18px;
     animation: fadeUp 0.9s ease forwards;
@@ -549,17 +549,29 @@ body.booking-nav-accent-on .booking-nav-link {
 
 .hero-line {
     white-space: nowrap;
-    display: inline-block;
+    display: block;
 }
 
 
 .hero h1 {
-    font-size: clamp(2.6rem, 4.8vw, 4.8rem);
+    font-size: 4rem;
+    line-height: 1.08;
+    letter-spacing: 0;
 }
 
 .hero p {
     font-size: 1.1rem;
     color: rgba(255, 255, 255, 0.8);
+}
+
+@media (max-width: 1100px) {
+    .hero-content {
+        max-width: 700px;
+    }
+
+    .hero h1 {
+        font-size: 3.1rem;
+    }
 }
 
 .hero-cta {
@@ -4163,13 +4175,13 @@ body.booking-nav-accent-on .booking-nav-link {
 
     .hero-line {
         white-space: normal;
-        display: inline;
+        display: block;
     }
 
     .hero h1 {
-        font-size: clamp(2.55rem, 11vw, 4rem);
+        font-size: 2.35rem;
         line-height: 1.04;
-        letter-spacing: 0.01em;
+        letter-spacing: 0;
         text-wrap: balance;
     }
 
