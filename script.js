@@ -1012,8 +1012,14 @@
         }
 
         const requiredValid =
+            Boolean(getInputValue(reservationFirstName)) &&
+            Boolean(getInputValue(reservationLastName)) &&
             Boolean(getInputValue(reservationEmail)) &&
             Boolean(getInputValue(reservationPhone)) &&
+            Boolean(getInputValue(reservationStreet)) &&
+            Boolean(getInputValue(reservationCity)) &&
+            Boolean(getInputValue(reservationZip)) &&
+            Boolean(getInputValue(reservationCountry)) &&
             Boolean(reservationRequiredConsent?.checked);
 
         if (!requiredValid || !reservationForm.reportValidity()) {

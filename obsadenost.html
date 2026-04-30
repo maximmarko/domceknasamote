@@ -202,12 +202,12 @@
                 <form class="reservation-form" id="reservation-form" novalidate>
                     <div class="reservation-grid">
                         <label class="reservation-field" for="reservation-first-name">
-                            <span>Meno</span>
-                            <input id="reservation-first-name" name="first_name" type="text" autocomplete="given-name" />
+                            <span>Meno *</span>
+                            <input id="reservation-first-name" name="first_name" type="text" autocomplete="given-name" required />
                         </label>
                         <label class="reservation-field" for="reservation-last-name">
-                            <span>Priezvisko</span>
-                            <input id="reservation-last-name" name="last_name" type="text" autocomplete="family-name" />
+                            <span>Priezvisko *</span>
+                            <input id="reservation-last-name" name="last_name" type="text" autocomplete="family-name" required />
                         </label>
                         <label class="reservation-field" for="reservation-email">
                             <span>Emailová adresa *</span>
@@ -218,20 +218,20 @@
                             <input id="reservation-phone" name="phone" type="tel" autocomplete="tel" required />
                         </label>
                         <label class="reservation-field" for="reservation-street">
-                            <span>Ulica a popisné číslo</span>
-                            <input id="reservation-street" name="street" type="text" autocomplete="address-line1" />
+                            <span>Ulica a popisné číslo *</span>
+                            <input id="reservation-street" name="street" type="text" autocomplete="address-line1" required />
                         </label>
                         <label class="reservation-field" for="reservation-city">
-                            <span>Mesto</span>
-                            <input id="reservation-city" name="city" type="text" autocomplete="address-level2" />
+                            <span>Mesto *</span>
+                            <input id="reservation-city" name="city" type="text" autocomplete="address-level2" required />
                         </label>
                         <label class="reservation-field" for="reservation-zip">
-                            <span>PSČ</span>
-                            <input id="reservation-zip" name="zip" type="text" autocomplete="postal-code" />
+                            <span>PSČ *</span>
+                            <input id="reservation-zip" name="zip" type="text" autocomplete="postal-code" required />
                         </label>
                         <label class="reservation-field" for="reservation-country">
-                            <span>Krajina</span>
-                            <input id="reservation-country" name="country" type="text" autocomplete="country-name" />
+                            <span>Krajina *</span>
+                            <input id="reservation-country" name="country" type="text" autocomplete="country-name" required />
                         </label>
                     </div>
 
