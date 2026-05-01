@@ -647,6 +647,11 @@ body.booking-nav-accent-on .booking-nav-link {
     align-items: center;
 }
 
+.intro-heading-line {
+    display: block;
+    white-space: nowrap;
+}
+
 .intro-video {
     border-radius: var(--radius);
     overflow: hidden;
@@ -673,6 +678,38 @@ body.booking-nav-accent-on .booking-nav-link {
 
 .video-fallback-message a {
     color: #f2e7d7;
+}
+
+.hot-tub {
+    background: var(--sand);
+}
+
+.hot-tub-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 40px;
+    align-items: center;
+}
+
+.hot-tub-image {
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    background: #0e1110;
+    min-height: 320px;
+    aspect-ratio: 16 / 9;
+}
+
+.hot-tub-image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hot-tub-copy {
+    display: grid;
+    gap: 0;
 }
 
 .section-heading.center {
@@ -3506,6 +3543,9 @@ body.booking-nav-accent-on .booking-nav-link {
 }
 
 .lightbox-image {
+    --lightbox-zoom: 1;
+    --lightbox-pan-x: 0px;
+    --lightbox-pan-y: 0px;
     width: auto;
     max-width: 90vw;
     height: 76vh;
@@ -3513,6 +3553,36 @@ body.booking-nav-accent-on .booking-nav-link {
     border-radius: 18px;
     background: transparent;
     box-shadow: 0 30px 60px rgba(8, 10, 9, 0.35);
+    cursor: zoom-in;
+    transform: translate3d(var(--lightbox-pan-x), var(--lightbox-pan-y), 0) scale(var(--lightbox-zoom));
+    transform-origin: center;
+    user-select: none;
+    -webkit-user-drag: none;
+    touch-action: none;
+    transition: transform 0.24s ease, box-shadow 0.24s ease;
+    will-change: transform;
+}
+
+.lightbox-image.is-zoomed {
+    cursor: grab;
+}
+
+.lightbox-image.is-dragging {
+    cursor: grabbing;
+}
+
+.lightbox-image:not(.is-zoom-animating),
+.lightbox-image.is-dragging {
+    transition: box-shadow 0.24s ease;
+}
+
+.lightbox.is-zoomed .lightbox-image {
+    box-shadow: 0 36px 76px rgba(8, 10, 9, 0.48);
+}
+
+.lightbox.is-zoomed .lightbox-meta {
+    opacity: 0;
+    pointer-events: none;
 }
 
 .lightbox-close {
@@ -3647,6 +3717,10 @@ body.booking-nav-accent-on .booking-nav-link {
     height: min(62vh, 620px);
     border-radius: 22px;
     object-fit: cover;
+    cursor: default;
+    transform: none;
+    touch-action: auto;
+    transition: box-shadow 0.24s ease;
 }
 
 .lightbox--info {
@@ -4033,16 +4107,16 @@ body.booking-nav-accent-on .booking-nav-link {
         width: 100%;
         max-width: 100%;
         grid-template-columns: 1fr;
-        justify-items: center;
-        text-align: center;
+        justify-items: start;
+        text-align: left;
         padding-inline: 6vw;
     }
 
     .contact-details {
         width: 100%;
         max-width: 100%;
-        align-items: center;
-        text-align: center;
+        align-items: flex-start;
+        text-align: left;
         overflow-wrap: anywhere;
         word-break: break-word;
     }
@@ -4065,12 +4139,12 @@ body.booking-nav-accent-on .booking-nav-link {
     }
 
     .footer-bottom {
-        justify-content: center;
-        text-align: center;
+        justify-content: start;
+        text-align: left;
     }
 
     .footer-legal-links {
-        justify-content: center;
+        justify-content: flex-start;
     }
 
     .calendar-selection-status {
@@ -4152,8 +4226,8 @@ body.booking-nav-accent-on .booking-nav-link {
         min-height: 100svh;
         padding: 128px 6vw 54px;
         align-items: end;
-        justify-items: center;
-        text-align: center;
+        justify-items: start;
+        text-align: left;
     }
 
     .hero-slider::after {
@@ -4164,13 +4238,13 @@ body.booking-nav-accent-on .booking-nav-link {
         width: min(100%, 420px);
         max-width: none;
         gap: 16px;
-        justify-items: center;
+        justify-items: start;
     }
 
     .eyebrow {
         font-size: 0.76rem;
         letter-spacing: 0.22em;
-        text-align: center;
+        text-align: left;
     }
 
     .hero-line {
@@ -4190,7 +4264,7 @@ body.booking-nav-accent-on .booking-nav-link {
         font-size: 1rem;
         line-height: 1.55;
         color: rgba(255, 255, 255, 0.84);
-        margin-inline: auto;
+        margin-inline: 0;
     }
 
     .hero-cta {
@@ -4217,14 +4291,20 @@ body.booking-nav-accent-on .booking-nav-link {
 
     .section {
         padding: 72px 6vw;
-        text-align: center;
+        text-align: left;
     }
 
     .section-heading {
         gap: 12px;
         max-width: 100%;
-        margin-inline: auto;
-        justify-items: center;
+        margin-inline: 0;
+        justify-items: start;
+    }
+
+    .section-heading.center {
+        text-align: left;
+        justify-items: start;
+        margin-inline: 0;
     }
 
     .section h2 {
@@ -4233,9 +4313,19 @@ body.booking-nav-accent-on .booking-nav-link {
         text-wrap: balance;
     }
 
+    .intro-heading-line {
+        white-space: normal;
+    }
+
     .section-lead,
     .projects-meta p,
-    .split-text p,
+    .split-text p {
+        font-size: 1rem;
+        line-height: 1.65;
+        max-width: 36rem;
+        margin-inline: 0;
+    }
+
     .faq-item p {
         font-size: 1rem;
         line-height: 1.65;
@@ -4244,6 +4334,7 @@ body.booking-nav-accent-on .booking-nav-link {
     }
 
     .intro-grid,
+    .hot-tub-grid,
     .projects-content,
     .split {
         grid-template-columns: minmax(0, 1fr);
@@ -4252,15 +4343,24 @@ body.booking-nav-accent-on .booking-nav-link {
     }
 
     .intro-copy,
+    .hot-tub-copy,
     .projects-meta,
     .split-text {
         width: min(100%, 520px);
         gap: 14px;
-        justify-items: center;
-        text-align: center;
+        justify-items: start;
+        text-align: left;
     }
 
     .intro-video {
+        width: min(100%, 520px);
+        min-height: 220px;
+        aspect-ratio: 16 / 9;
+        border-radius: 22px;
+        order: -1;
+    }
+
+    .hot-tub-image {
         width: min(100%, 520px);
         min-height: 220px;
         aspect-ratio: 16 / 9;
@@ -4287,13 +4387,13 @@ body.booking-nav-accent-on .booking-nav-link {
     }
 
     .projects-meta .projects-eyebrow {
-        justify-self: center;
+        justify-self: start;
     }
 
     .wide-btn {
         width: min(100%, 320px);
         min-height: 54px;
-        justify-self: center;
+        justify-self: start;
     }
 
     .social-carousel {
@@ -4317,14 +4417,14 @@ body.booking-nav-accent-on .booking-nav-link {
 
     .gallery-hero {
         width: min(100%, 560px);
-        align-items: center;
-        justify-content: center;
-        text-align: center;
+        align-items: start;
+        justify-content: start;
+        text-align: left;
     }
 
     .gallery-hero-copy {
         max-width: 100%;
-        justify-items: center;
+        justify-items: start;
     }
 
     .gallery-hero-copy h1 {
@@ -4340,7 +4440,7 @@ body.booking-nav-accent-on .booking-nav-link {
 
     .gallery-hero-copy p {
         max-width: 34rem;
-        margin-inline: auto;
+        margin-inline: 0;
         font-size: 1rem;
         line-height: 1.65;
     }
@@ -4356,14 +4456,14 @@ body.booking-nav-accent-on .booking-nav-link {
 
     .activities-hero-copy,
     .activities-section .section-heading {
-        justify-items: center;
-        text-align: center;
-        margin-inline: auto;
+        justify-items: start;
+        text-align: left;
+        margin-inline: 0;
     }
 
     .activities-hero-card {
         width: min(100%, 520px);
-        text-align: center;
+        text-align: left;
     }
 
     .activities-grid {
@@ -4482,8 +4582,8 @@ body.booking-nav-accent-on .booking-nav-link {
         width: 100%;
         max-width: 100%;
         grid-template-columns: 1fr;
-        justify-items: center;
-        text-align: center;
+        justify-items: start;
+        text-align: left;
         padding-inline: 6vw;
     }
 
@@ -4494,12 +4594,12 @@ body.booking-nav-accent-on .booking-nav-link {
 
     .footer-bottom {
         grid-template-columns: 1fr;
-        justify-items: center;
-        text-align: center;
+        justify-items: start;
+        text-align: left;
     }
 
     .footer-bottom > span:first-child,
     .footer-legal-links {
-        justify-self: center;
+        justify-self: start;
     }
 }
