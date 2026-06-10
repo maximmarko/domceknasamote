@@ -61,9 +61,17 @@ function doGet(e) {
     return htmlResponse_("Neplatný odkaz", "<p>V odkaze chýba akcia alebo token rezervácie.</p>");
   }
 
+  if (["approve", "reject", "send-confirmation"].indexOf(action) === -1) {
+    return htmlResponse_("Neznáma akcia", "<p>Podporované akcie sú approve, reject a send-confirmation.</p>");
+  }
+
   const reservation = findReservationByToken_(action, token);
   if (!reservation) {
     return htmlResponse_("Rezervácia sa nenašla", "<p>Tento odkaz je neplatný alebo už nie je dostupný.</p>");
+  }
+
+  if (action === "send-confirmation") {
+    return sendGuestPaymentEmailFlow_(reservation);
   }
 
   if (reservation.status !== "pending") {
@@ -85,15 +93,17 @@ function doGet(e) {
 }
 
 function approveReservationFlow_(reservation) {
-  const calendarLink = createGoogleCalendarTemplateUrl_(reservation);
-  updateReservationDecision_(reservation.rowNumber, "approved", calendarLink);
-  sendGuestDecisionEmail_(reservation, "approved");
+  const calendarEvent = createGoogleCalendarEvent_(reservation);
+  updateReservationDecision_(reservation.rowNumber, "approved_pending_guest_email", calendarEvent.getId());
+  sendOwnerGuestPaymentReviewEmail_(reservation);
+  const archived = archiveOwnerApprovalThread_(reservation);
 
   const content = [
     `<p>Rezervácia <strong>${escapeHtml_(reservation.id)}</strong> bola potvrdená.</p>`,
-    "<p>Hosť dostal potvrdzujúci email.</p>",
-    `<p><a href="${calendarLink}" target="_blank" rel="noopener noreferrer">Pridať udalosť do Google Kalendára</a></p>`,
-    "<p>Ak použijete ten istý Google Kalendár ako na webe, obsadenosť sa po pridaní udalosti zosynchronizuje aj na stránke.</p>"
+    `<p>Udalosť <strong>${escapeHtml_(calendarEvent.getTitle())}</strong> bola vložená do Google Kalendára.</p>`,
+    "<p>Majiteľ dostal kontrolný email s pripraveným textom pre klienta.</p>",
+    "<p>Klientovi sa finálny email odošle až po kliknutí na tlačidlo Odoslať mail klientovi v kontrolnom emaile.</p>",
+    `<p>Potvrdzovací email bol ${archived ? "archivovaný v schránke" : "ponechaný v schránke, pretože sa ho nepodarilo automaticky nájsť v Inboxe"}.</p>`
   ].join("");
 
   return htmlResponse_("Rezervácia potvrdená", content);
@@ -102,10 +112,11 @@ function approveReservationFlow_(reservation) {
 function rejectReservationFlow_(reservation) {
   updateReservationDecision_(reservation.rowNumber, "rejected", "");
   sendGuestDecisionEmail_(reservation, "rejected");
+  const archived = archiveOwnerApprovalThread_(reservation);
 
   return htmlResponse_(
     "Rezervácia zamietnutá",
-    `<p>Rezervácia <strong>${escapeHtml_(reservation.id)}</strong> bola zamietnutá a hosť dostal informačný email.</p>`
+    `<p>Rezervácia <strong>${escapeHtml_(reservation.id)}</strong> bola zamietnutá a hosť dostal informačný email.</p><p>Potvrdzovací email bol ${archived ? "archivovaný v schránke" : "ponechaný v schránke, pretože sa ho nepodarilo automaticky nájsť v Inboxe"}.</p>`
   );
 }
 
@@ -287,7 +298,7 @@ function sendOwnerApprovalEmail_(record) {
   GmailApp.sendEmail(record.ownerEmail, `Nová rezervácia ${record.id}`, body, {
     htmlBody: htmlBody,
     replyTo: record.guestEmail,
-    name: "Chalupka na Samote - rezervácie"
+    name: "Domček na Samote - Rezervácie"
   });
 }
 
@@ -344,11 +355,117 @@ function sendGuestDecisionEmail_(reservation, decision) {
   });
 }
 
+function sendOwnerGuestPaymentReviewEmail_(reservation) {
+  const sendUrl = createActionUrl_("send-confirmation", reservation.approveToken);
+  const guestSubject = buildGuestPaymentEmailSubject_(reservation);
+  const guestBody = buildGuestPaymentEmailBody_(reservation);
+  const body = [
+    `Rezervácia ${reservation.id} bola potvrdená a vložená do kalendára.`,
+    "",
+    "Nižšie je pripravený email pre klienta na kontrolu.",
+    "Ak je text v poriadku, kliknite na odkaz Odoslať mail klientovi.",
+    "",
+    `Komu: ${reservation.guestEmail}`,
+    `Predmet: ${guestSubject}`,
+    "",
+    guestBody,
+    "",
+    `Odoslať mail klientovi: ${sendUrl}`
+  ].join("\n");
+
+  const htmlBody = [
+    `<p>Rezervácia <strong>${escapeHtml_(reservation.id)}</strong> bola potvrdená a vložená do kalendára.</p>`,
+    "<p>Nižšie je pripravený email pre klienta na kontrolu. Ak je text v poriadku, kliknite na tlačidlo.</p>",
+    "<table style=\"border-collapse:collapse;margin-bottom:18px\">",
+    tableRow_("Komu", reservation.guestEmail),
+    tableRow_("Predmet", guestSubject),
+    "</table>",
+    `<div style="border:1px solid #dedede;border-radius:12px;padding:18px;margin:18px 0;background:#fafafa;white-space:normal">${nl2br_(guestBody)}</div>`,
+    `<p><a href="${sendUrl}" style="display:inline-block;padding:12px 20px;border-radius:999px;background:#2f6d4f;color:#ffffff;text-decoration:none;font-weight:700">Odoslať mail klientovi</a></p>`
+  ].join("");
+
+  GmailApp.sendEmail(reservation.ownerEmail, `Kontrola emailu klientovi ${reservation.id}`, body, {
+    htmlBody: htmlBody,
+    replyTo: reservation.guestEmail,
+    name: "Domček na Samote - Rezervácie"
+  });
+}
+
+function sendGuestPaymentEmailFlow_(reservation) {
+  if (reservation.status === "approved") {
+    return htmlResponse_(
+      "Email už bol odoslaný",
+      `<p>Email klientovi pre rezerváciu <strong>${escapeHtml_(reservation.id)}</strong> už bol odoslaný.</p>`
+    );
+  }
+
+  if (reservation.status !== "approved_pending_guest_email") {
+    return htmlResponse_(
+      "Email nie je pripravený",
+      `<p>Rezervácia <strong>${escapeHtml_(reservation.id)}</strong> má stav <strong>${escapeHtml_(reservation.status)}</strong>, preto sa email klientovi nedá odoslať.</p>`
+    );
+  }
+
+  const subject = buildGuestPaymentEmailSubject_(reservation);
+  const body = buildGuestPaymentEmailBody_(reservation);
+  GmailApp.sendEmail(reservation.guestEmail, subject, body, {
+    name: "Domček na Samote"
+  });
+  updateReservationStatus_(reservation.rowNumber, "approved");
+
+  return htmlResponse_(
+    "Email bol odoslaný",
+    `<p>Email klientovi <strong>${escapeHtml_(reservation.guestEmail)}</strong> bol odoslaný.</p>`
+  );
+}
+
+function buildGuestPaymentEmailSubject_(reservation) {
+  return `Rezervácia ubytovania ${reservation.startDateLabel} - ${reservation.endDateLabel}`;
+}
+
+function buildGuestPaymentEmailBody_(reservation) {
+  const totalPriceLabel = reservation.totalPriceLabel || formatCurrency_(reservation.totalPrice);
+  const depositLabel = formatCurrency_(Number(reservation.totalPrice || 0) * 0.3);
+
+  return [
+    "Dobrý deň,",
+    "",
+    `ďakujeme za rezerváciu ubytovania v Domčeku na samote v termíne ${reservation.startDateLabel} - ${reservation.endDateLabel}`,
+    "",
+    `Aby sme Vám mohli termín záväzne potvrdiť, prosíme o úhradu zálohy vo výške ${depositLabel}`,
+    `(30 % z celkovej ceny ${totalPriceLabel}).`,
+    "",
+    "Platbu môžete uhradiť na účet:",
+    "",
+    "Chaty pod tatrami, s. r. o.",
+    "",
+    "IBAN: SK89 0900 0000 0052 1364 8006",
+    "",
+    "SWIFT: GIBASKBX",
+    "",
+    "Po pripísaní platby Vám zašleme potvrdenie.",
+    "",
+    "O termíne doplatku Vás budeme včas informovať e-mailom.",
+    "Pri nástupe na pobyt Vám vystavíme faktúru s možnosťou uplatnenia rekreačného poukazu.",
+    "",
+    "Tešíme sa na Vašu návštevu.",
+    "Martin Marko RSc.",
+    "Chaty pod Tatrami, s. r. o. – prevádzkovateľ ubytovania",
+    "www.domceknasamote.sk",
+    "https://www.orsr.sk/vypis.asp?ID=68414&SID=3&P=0&lan=sk"
+  ].join("\n");
+}
+
 function updateReservationDecision_(rowNumber, status, calendarLink) {
   const sheet = getReservationSheet_();
   sheet.getRange(rowNumber, COLUMN_INDEX.status).setValue(status);
   sheet.getRange(rowNumber, COLUMN_INDEX.decisionAt).setValue(new Date());
   sheet.getRange(rowNumber, COLUMN_INDEX.calendarLink).setValue(calendarLink || "");
+}
+
+function updateReservationStatus_(rowNumber, status) {
+  const sheet = getReservationSheet_();
+  sheet.getRange(rowNumber, COLUMN_INDEX.status).setValue(status);
 }
 
 function findReservationByToken_(action, token) {
@@ -359,7 +476,7 @@ function findReservationByToken_(action, token) {
   }
 
   const values = sheet.getRange(2, 1, lastRow - 1, 28).getValues();
-  const tokenIndex = action === "approve" ? COLUMN_INDEX.approveToken - 1 : COLUMN_INDEX.rejectToken - 1;
+  const tokenIndex = action === "reject" ? COLUMN_INDEX.rejectToken - 1 : COLUMN_INDEX.approveToken - 1;
 
   for (let i = 0; i < values.length; i += 1) {
     const row = values[i];
@@ -378,6 +495,9 @@ function mapReservationRow_(row, rowNumber) {
     rowNumber: rowNumber,
     id: String(row[COLUMN_INDEX.id - 1]),
     createdAt: row[COLUMN_INDEX.createdAt - 1],
+    createdAtLabel: row[COLUMN_INDEX.createdAt - 1]
+      ? Utilities.formatDate(new Date(row[COLUMN_INDEX.createdAt - 1]), SCRIPT_TZ, "dd.MM.yyyy HH:mm")
+      : "",
     status: String(row[COLUMN_INDEX.status - 1]),
     ownerEmail: String(row[COLUMN_INDEX.ownerEmail - 1]),
     guestFirstName: String(row[COLUMN_INDEX.guestFirstName - 1]),
@@ -409,35 +529,75 @@ function mapReservationRow_(row, rowNumber) {
   };
 }
 
-function createGoogleCalendarTemplateUrl_(reservation) {
-  const title = "Rezervácia - Chalupka na Samote";
-  const details = [
+function createGoogleCalendarEvent_(reservation) {
+  const calendar = reservation.calendarId
+    ? CalendarApp.getCalendarById(reservation.calendarId)
+    : CalendarApp.getDefaultCalendar();
+
+  if (!calendar) {
+    throw new Error("Nepodarilo sa nájsť Google Kalendár pre potvrdenú rezerváciu.");
+  }
+
+  const startDate = parseDateForCalendar_(reservation.startDate);
+  const endDate = parseDateForCalendar_(addDaysToDateValue_(reservation.endDate, 1));
+
+  if (!startDate || !endDate) {
+    throw new Error("Termín rezervácie sa nepodarilo vložiť do Google Kalendára.");
+  }
+
+  const title = "Rezervácia - Domček na Samote";
+  const address = buildReservationAddress_(reservation);
+
+  return calendar.createAllDayEvent(title, startDate, endDate, {
+    description: buildReservationCalendarDescription_(reservation, address),
+    location: "Domček na Samote"
+  });
+}
+
+function buildReservationCalendarDescription_(reservation, address) {
+  return [
     `ID rezervácie: ${reservation.id}`,
+    `Vytvorené: ${reservation.createdAtLabel || "-"}`,
     `Hosť: ${[reservation.guestFirstName, reservation.guestLastName].filter(Boolean).join(" ") || "-"}`,
-    `Email: ${reservation.guestEmail}`,
-    `Telefón: ${reservation.guestPhone}`,
-    `Počet osôb: ${reservation.guestCount}`,
-    `Platba: ${reservation.paymentMethod}`,
-    `Cena: ${reservation.totalPriceLabel}`,
+    `Email: ${reservation.guestEmail || "-"}`,
+    `Telefón: ${reservation.guestPhone || "-"}`,
+    `Adresa: ${address || "-"}`,
+    `Počet osôb: ${reservation.guestCount || "-"}`,
+    `Počet nocí: ${reservation.nights || "-"}`,
+    `Platba: ${reservation.paymentMethod || "-"}`,
+    `Pôvodná cena: ${reservation.originalPriceLabel || "-"}`,
+    `Finálna cena: ${reservation.totalPriceLabel || "-"}`,
+    `Zľava: ${Math.round(Number(reservation.discountRate || 0) * 100)}%`,
     `Termín pobytu: ${reservation.startDateLabel} - ${reservation.endDateLabel}`,
+    `Povinný súhlas: ${reservation.requiredConsent ? "Áno" : "Nie"}`,
+    `Marketingový súhlas: ${reservation.marketingConsent ? "Áno" : "Nie"}`,
     "Poznámka pre kalendár: deň odchodu je zablokovaný celý kvôli čisteniu a príprave vírivky.",
     `Poznámka od hosťa: ${reservation.notes || "-"}`
   ].join("\n");
-  const start = formatDateForCalendarParam_(reservation.startDate);
-  const end = formatDateForCalendarParam_(addDaysToDateValue_(reservation.endDate, 1));
-  const params = [
-    "action=TEMPLATE",
-    `text=${encodeURIComponent(title)}`,
-    `dates=${encodeURIComponent(`${start}/${end}`)}`,
-    `details=${encodeURIComponent(details)}`,
-    `location=${encodeURIComponent("Chalupka na Samote")}`
-  ];
+}
 
-  if (reservation.calendarId) {
-    params.push(`src=${encodeURIComponent(reservation.calendarId)}`);
+function buildReservationAddress_(reservation) {
+  return [
+    reservation.street,
+    reservation.city,
+    reservation.zip,
+    reservation.country
+  ].filter(Boolean).join(", ");
+}
+
+function archiveOwnerApprovalThread_(reservation) {
+  try {
+    const query = `in:inbox subject:"Nová rezervácia ${reservation.id}"`;
+    const threads = GmailApp.search(query, 0, 10);
+    if (!threads.length) {
+      return false;
+    }
+
+    GmailApp.moveThreadsToArchive(threads);
+    return true;
+  } catch (error) {
+    return false;
   }
-
-  return `https://calendar.google.com/calendar/render?${params.join("&")}`;
 }
 
 function getReservationSheet_() {
@@ -502,6 +662,11 @@ function getConfigValue_(key, fallback) {
   return String(props.getProperty(key) || fallback || "").trim();
 }
 
+function createActionUrl_(action, token) {
+  const scriptUrl = getConfigValue_("WEB_APP_URL", ScriptApp.getService().getUrl() || "");
+  return `${scriptUrl}?action=${encodeURIComponent(action)}&token=${encodeURIComponent(token)}`;
+}
+
 function tableRow_(label, value) {
   return `<tr><td style="padding:6px 12px 6px 0;font-weight:700;vertical-align:top">${escapeHtml_(label)}</td><td style="padding:6px 0">${escapeHtml_(value || "-")}</td></tr>`;
 }
@@ -534,27 +699,27 @@ function formatDateLabelFromIso_(value) {
   return `${parts[2]}.${parts[1]}.${parts[0]}`;
 }
 
-function formatDateForCalendarParam_(value) {
+function parseDateForCalendar_(value) {
   if (!value) {
-    return "";
+    return null;
   }
 
   if (Object.prototype.toString.call(value) === "[object Date]" && !Number.isNaN(value.getTime())) {
-    return Utilities.formatDate(value, SCRIPT_TZ, "yyyyMMdd");
+    return new Date(value.getFullYear(), value.getMonth(), value.getDate());
   }
 
   const text = String(value).trim();
-  const parsedDate = new Date(text);
-  if (!Number.isNaN(parsedDate.getTime())) {
-    return Utilities.formatDate(parsedDate, SCRIPT_TZ, "yyyyMMdd");
-  }
-
   const parts = text.split("-");
   if (parts.length === 3) {
-    return `${parts[0]}${parts[1]}${parts[2]}`;
+    return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
   }
 
-  return text.replace(/[^\d]/g, "");
+  const parsedDate = new Date(text);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return null;
+  }
+
+  return new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate());
 }
 
 function addDaysToDateValue_(value, daysToAdd) {
@@ -581,6 +746,10 @@ function escapeHtml_(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+function nl2br_(value) {
+  return escapeHtml_(value).replace(/\n/g, "<br>");
 }
 
 function jsonResponse_(payload) {
