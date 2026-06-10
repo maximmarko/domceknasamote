@@ -94,7 +94,11 @@ function doGet(e) {
 
 function authorizeServices() {
   GmailApp.getAliases();
-  CalendarApp.getDefaultCalendar();
+  const calendarId = getConfigValue_("CALENDAR_ID", "");
+  const calendar = calendarId ? CalendarApp.getCalendarById(calendarId) : CalendarApp.getDefaultCalendar();
+  if (!calendar) {
+    throw new Error("CALENDAR_ID nie je dostupný pre tento účet. Zdieľajte kalendár s účtom Apps Scriptu alebo opravte CALENDAR_ID.");
+  }
   PropertiesService.getScriptProperties().getProperties();
   return "OK";
 }
