@@ -160,7 +160,7 @@ function validateReservationPayload_(payload) {
 function createReservationRecord_(payload) {
   const ownerEmail = getConfigValue_("OWNER_EMAIL", payload.ownerEmail || "");
   const calendarId = getConfigValue_("CALENDAR_ID", payload.calendarId || "");
-  const scriptUrl = getConfigValue_("WEB_APP_URL", ScriptApp.getService().getUrl() || "");
+  const scriptUrl = normalizeWebAppUrl_(getConfigValue_("WEB_APP_URL", ScriptApp.getService().getUrl() || ""));
 
   if (!ownerEmail) {
     throw new Error("V Apps Script Properties chýba OWNER_EMAIL.");
@@ -663,8 +663,12 @@ function getConfigValue_(key, fallback) {
 }
 
 function createActionUrl_(action, token) {
-  const scriptUrl = getConfigValue_("WEB_APP_URL", ScriptApp.getService().getUrl() || "");
+  const scriptUrl = normalizeWebAppUrl_(getConfigValue_("WEB_APP_URL", ScriptApp.getService().getUrl() || ""));
   return `${scriptUrl}?action=${encodeURIComponent(action)}&token=${encodeURIComponent(token)}`;
+}
+
+function normalizeWebAppUrl_(url) {
+  return String(url || "").trim().replace(/\/macros\/u\/\d+\/s\//, "/macros/s/");
 }
 
 function tableRow_(label, value) {
