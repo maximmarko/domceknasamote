@@ -92,6 +92,13 @@ function doGet(e) {
   return htmlResponse_("Neznáma akcia", "<p>Podporované akcie sú approve a reject.</p>");
 }
 
+function authorizeServices() {
+  GmailApp.getAliases();
+  CalendarApp.getDefaultCalendar();
+  PropertiesService.getScriptProperties().getProperties();
+  return "OK";
+}
+
 function approveReservationFlow_(reservation) {
   const calendarEvent = createGoogleCalendarEvent_(reservation);
   updateReservationDecision_(reservation.rowNumber, "approved_pending_guest_email", calendarEvent.getId());
@@ -318,7 +325,7 @@ function sendGuestReceiptEmail_(record) {
   ].join("\n");
 
   GmailApp.sendEmail(record.guestEmail, `Prijali sme vašu rezerváciu ${record.id}`, body, {
-    name: "Chalupka na Samote"
+    name: "Domček na Samote"
   });
 }
 
@@ -351,7 +358,7 @@ function sendGuestDecisionEmail_(reservation, decision) {
       ].join("\n");
 
   GmailApp.sendEmail(reservation.guestEmail, subject, body, {
-    name: "Chalupka na Samote"
+    name: "Domček na Samote"
   });
 }
 
