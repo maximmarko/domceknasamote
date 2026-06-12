@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Spracovanie rezervácie</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      background: #f6f1e8;
+      color: #233126;
+      padding: 24px;
+    }
+    .card {
+      background: #fffdf8;
+      border: 1px solid #dfd2bf;
+      border-radius: 24px;
+      padding: 36px 32px;
+      max-width: 520px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(35, 49, 38, .08);
+      text-align: center;
+    }
+    .icon { font-size: 56px; line-height: 1; margin-bottom: 12px; }
+    h1 { margin: 0 0 12px; font-size: 26px; }
+    p { line-height: 1.6; margin: 8px 0; }
+    .muted { color: #6b6151; font-size: 14px; }
+    .spinner {
+      width: 46px; height: 46px; margin: 4px auto 16px;
+      border: 5px solid #e3dccc;
+      border-top-color: #2f6d4f;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .fallback {
+      display: none;
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid #ece3d2;
+    }
+    .fallback a {
+      color: #2f6d4f;
+      font-weight: 700;
+      word-break: break-all;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 18px;
+      padding: 12px 22px;
+      border-radius: 999px;
+      background: #2f6d4f;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <div class="spinner" id="spinner"></div>
+    <h1 id="title">Spracúvam…</h1>
+    <p id="message" class="muted">Prosím počkajte, odosielam požiadavku.</p>
+    <div class="fallback" id="fallback">
+      <p class="muted">Ak by sa akcia nevykonala, otvorte priamo tento odkaz:</p>
+      <a id="fallbackLink" href="#" target="_blank" rel="noopener">Otvoriť priamo</a>
+    </div>
+  </div>
+
+  <script>
+    // Exec URL nasadenej Apps Script web appky (mení sa len pri "New deployment").
+    var EXEC_URL = "https://script.google.com/macros/s/AKfycbyOucS235pwLgBwB_g2vUGYyjZWj4BSKYDZ5ExuF2ig4tQoIQobGyXl4khUczuhHUkqBQ/exec";
+
+    var COPY = {
+      approve: {
+        icon: "✅",
+        title: "Rezervácia potvrdená",
+        message: "Hotovo. Do vašej schránky prišiel kontrolný email s pripraveným textom pre klienta — odošlete ho tlačidlom v tom emaile."
+      },
+      reject: {
+        icon: "✖️",
+        title: "Rezervácia zamietnutá",
+        message: "Hotovo. Hosťovi sme odoslali informačný email o zamietnutí."
+      },
+      "send-confirmation": {
+        icon: "📧",
+        title: "Email klientovi odoslaný",
+        message: "Hotovo. Klientovi sme odoslali email s pokynmi k úhrade zálohy."
+      }
+    };
+
+    function getParam(name) {
+      return new URLSearchParams(window.location.search).get(name) || "";
+    }
+
+    function setState(icon, title, message) {
+      document.getElementById("spinner").style.display = "none";
+      document.getElementById("title").textContent = title;
+      document.getElementById("title").innerHTML =
+        '<span class="icon">' + icon + '</span><br>' + title;
+      document.getElementById("message").className = "";
+      document.getElementById("message").textContent = message;
+    }
+
+    function showFallback(targetUrl) {
+      var fb = document.getElementById("fallback");
+      var link = document.getElementById("fallbackLink");
+      link.href = targetUrl;
+      fb.style.display = "block";
+    }
+
+    (function () {
+      var action = getParam("action").toLowerCase().trim();
+      var token = getParam("token").trim();
+
+      if (!COPY[action] || !token) {
+        setState("⚠️", "Neplatný odkaz", "V odkaze chýba alebo je nesprávna akcia, prípadne token rezervácie.");
+        return;
+      }
+
+      var target = EXEC_URL + "?action=" + encodeURIComponent(action) + "&token=" + encodeURIComponent(token);
+
+      // fetch v režime no-cors ide bez Google cookies => Apps Script ju spracuje
+      // anonymne (rovnako ako v incognite), takze ziadne /u/N/ presmerovanie na ucet.
+      fetch(target, { method: "GET", mode: "no-cors", cache: "no-store", redirect: "follow" })
+        .then(function () {
+          var c = COPY[action];
+          setState(c.icon, c.title, c.message);
+        })
+        .catch(function () {
+          setState("⚠️", "Niečo sa nepodarilo",
+            "Požiadavku sa nepodarilo odoslať automaticky. Skúste to ešte raz, alebo použite priamy odkaz nižšie.");
+          showFallback(target);
+        });
+    })();
+  </script>
+</body>
+</html>

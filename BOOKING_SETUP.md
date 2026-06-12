@@ -27,6 +27,20 @@ Tento projekt je teraz pripraveny na online odoslanie rezervacie cez API endpoin
 7. Do `window.BOOKING_CONFIG.ownerEmail` vloz mail majitela.
 8. Do `window.BOOKING_CONFIG.approvalCalendarId` vloz rovnake `CALENDAR_ID`, ake pouzivas na webe pre obsadenost.
 
+## Potvrdzovacie linky (riesenie /u/N/ problemu)
+
+Tlacidla v emailoch (Potvrdit / Zamietnut / Odoslat mail klientovi) nesmeruju priamo
+na `script.google.com`, ale na verejnu stranku [potvrdit.html](/c:/Users/Legion/Desktop/nigger/potvrdit.html)
+na webe. Tato stranka zavola Apps Script cez `fetch` v rezime `no-cors`, cize bez Google
+cookies = anonymne. Tym sa obide presmerovanie na `/u/N/` ucet, ktore pri viacerych
+prihlasenych Google uctoch hadze chybu "subor sa nepodarilo otvorit".
+
+Dolezite:
+- V `potvrdit.html` je `EXEC_URL` = exec URL nasadenej web appky. Meni sa len vtedy, ak
+  spravis `New deployment` (nie `Manage deployments > Edit`).
+- V `booking-workflow.gs` je `PUBLIC_ACTION_URL` = adresa tejto stranky na webe.
+- Deployment musi mat `Who has access = Anyone` (anonymny pristup), inak fetch neprejde.
+
 ## Dolezita poznamka
 
 Synchronizacia na stranke funguje len vtedy, ked po potvrdeni pridas udalost do toho isteho Google Kalendara, z ktoreho [script.js](/c:/Users/Legion/Desktop/nigger/script.js) cita obsadenost.

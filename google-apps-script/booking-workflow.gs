@@ -1,5 +1,8 @@
 const SCRIPT_TZ = Session.getScriptTimeZone() || "Europe/Bratislava";
 const SHEET_NAME = "Reservations";
+// Verejna stranka na webe, ktora akciu vykona cez fetch bez Google cookies.
+// Tym sa obide presmerovanie na /u/N/ ucet pri viacerych prihlasenych uctoch.
+const PUBLIC_ACTION_URL = "https://domceknasamote.sk/potvrdit.html";
 const COLUMN_INDEX = {
   id: 1,
   createdAt: 2,
@@ -217,8 +220,8 @@ function createReservationRecord_(payload) {
     requiredConsent: Boolean(payload.consents && payload.consents.required),
     approveToken: approveToken,
     rejectToken: rejectToken,
-    approveUrl: `${scriptUrl}?action=approve&token=${encodeURIComponent(approveToken)}`,
-    rejectUrl: `${scriptUrl}?action=reject&token=${encodeURIComponent(rejectToken)}`,
+    approveUrl: buildPublicActionUrl_("approve", approveToken),
+    rejectUrl: buildPublicActionUrl_("reject", rejectToken),
     calendarId: calendarId,
     calendarLink: ""
   };
@@ -674,8 +677,11 @@ function getConfigValue_(key, fallback) {
 }
 
 function createActionUrl_(action, token) {
-  const scriptUrl = normalizeWebAppUrl_(getConfigValue_("WEB_APP_URL", ScriptApp.getService().getUrl() || ""));
-  return `${scriptUrl}?action=${encodeURIComponent(action)}&token=${encodeURIComponent(token)}`;
+  return buildPublicActionUrl_(action, token);
+}
+
+function buildPublicActionUrl_(action, token) {
+  return `${PUBLIC_ACTION_URL}?action=${encodeURIComponent(action)}&token=${encodeURIComponent(token)}`;
 }
 
 function normalizeWebAppUrl_(url) {
