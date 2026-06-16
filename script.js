@@ -1,5 +1,79 @@
 ﻿(() => {
     document.documentElement.classList.add("js");
+
+    setupCopyChips();
+
+    function setupCopyChips() {
+        const chips = document.querySelectorAll(".copy-chip[data-copy]");
+        if (!chips.length) {
+            return;
+        }
+
+        let toast;
+        let toastTimer;
+
+        function showToast(message) {
+            if (!toast) {
+                toast = document.createElement("div");
+                toast.className = "copy-toast";
+                toast.setAttribute("role", "status");
+                toast.setAttribute("aria-live", "polite");
+                document.body.appendChild(toast);
+            }
+            toast.textContent = message;
+            toast.classList.remove("is-visible");
+            void toast.offsetWidth;
+            toast.classList.add("is-visible");
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(function () {
+                toast.classList.remove("is-visible");
+            }, 1800);
+        }
+
+        async function copyText(text) {
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                }
+            } catch (error) {
+                /* fall through to legacy copy */
+            }
+            try {
+                const area = document.createElement("textarea");
+                area.value = text;
+                area.setAttribute("readonly", "");
+                area.style.position = "absolute";
+                area.style.left = "-9999px";
+                document.body.appendChild(area);
+                area.select();
+                const copied = document.execCommand("copy");
+                document.body.removeChild(area);
+                return copied;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        chips.forEach(function (chip) {
+            chip.addEventListener("click", async function () {
+                const value = chip.getAttribute("data-copy") || "";
+                const copied = await copyText(value);
+                if (copied) {
+                    chip.classList.remove("is-copied");
+                    void chip.offsetWidth;
+                    chip.classList.add("is-copied");
+                    setTimeout(function () {
+                        chip.classList.remove("is-copied");
+                    }, 1200);
+                    showToast("✓ Skopírované do schránky");
+                } else {
+                    showToast("Kopírovanie sa nepodarilo");
+                }
+            });
+        });
+    }
+
     const calendarTitle = document.querySelector("#calendar-title");
     const calendarGrid = document.querySelector("#calendar-grid");
     const calendarSection = document.querySelector(".availability-calendar");

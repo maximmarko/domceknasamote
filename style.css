@@ -2356,6 +2356,81 @@ body.booking-nav-accent-on .booking-nav-link {
     color: var(--gold);
 }
 
+.footer-or-link {
+    color: inherit;
+    text-decoration: underline;
+    transition: color 0.2s ease;
+}
+
+.footer-or-link:hover,
+.footer-or-link:focus-visible {
+    color: var(--gold);
+}
+
+.footer-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 26px;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.copy-chip {
+    appearance: none;
+    -webkit-appearance: none;
+    background: none;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+    transition: color 0.2s ease;
+}
+
+.copy-chip:hover,
+.copy-chip:focus-visible {
+    color: var(--gold);
+}
+
+.copy-chip.is-copied {
+    color: var(--gold);
+}
+
+.copy-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 28px;
+    transform: translate(-50%, 18px);
+    background: #1f2622;
+    color: #f7f4ee;
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.copy-toast.is-visible {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .copy-toast {
+        transition: opacity 0.2s ease;
+        transform: translate(-50%, 0);
+    }
+}
+
 .legal-page {
     background: var(--sand);
 }
@@ -2413,6 +2488,29 @@ body.booking-nav-accent-on .booking-nav-link {
 .legal-content a {
     color: #2f6d4f;
     font-weight: 600;
+}
+
+.legal-content h3 {
+    margin: 6px 0 0;
+    font-family: "Work Sans", "Segoe UI", sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #354137;
+}
+
+.legal-content ul {
+    margin: 0;
+    padding-left: 22px;
+    display: grid;
+    gap: 8px;
+    color: #354137;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.legal-content strong {
+    color: #233126;
+    font-weight: 700;
 }
 
 .legal-note {
