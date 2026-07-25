@@ -105,6 +105,8 @@
     const reservationLastName = document.querySelector("#reservation-last-name");
     const reservationEmail = document.querySelector("#reservation-email");
     const reservationPhone = document.querySelector("#reservation-phone");
+    const reservationBirthDate = document.querySelector("#reservation-birth-date");
+    const reservationIdentityDocument = document.querySelector("#reservation-identity-document");
     const reservationStreet = document.querySelector("#reservation-street");
     const reservationCity = document.querySelector("#reservation-city");
     const reservationZip = document.querySelector("#reservation-zip");
@@ -546,6 +548,48 @@
 
     const getInputValue = (input) => (input?.value || "").trim();
 
+    const formatBirthDateInput = (value) => {
+        const digits = String(value || "").replace(/\D/g, "").slice(0, 8);
+        if (digits.length <= 2) {
+            return digits;
+        }
+        if (digits.length <= 4) {
+            return `${digits.slice(0, 2)}.${digits.slice(2)}`;
+        }
+        return `${digits.slice(0, 2)}.${digits.slice(2, 4)}.${digits.slice(4)}`;
+    };
+
+    const isValidBirthDate = (value) => {
+        const match = String(value || "").match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+        if (!match) {
+            return false;
+        }
+
+        const day = Number(match[1]);
+        const month = Number(match[2]);
+        const year = Number(match[3]);
+        const date = new Date(year, month - 1, day);
+        return (
+            date.getFullYear() === year &&
+            date.getMonth() === month - 1 &&
+            date.getDate() === day &&
+            date <= today
+        );
+    };
+
+    const validateBirthDate = () => {
+        if (!reservationBirthDate) {
+            return;
+        }
+
+        const value = getInputValue(reservationBirthDate);
+        reservationBirthDate.setCustomValidity(
+            value && !isValidBirthDate(value)
+                ? "Zadajte platný dátum narodenia vo formáte DD.MM.YYYY."
+                : ""
+        );
+    };
+
     const buildReservationPayload = () => {
         if (!selectedStart || !selectedEnd) {
             return null;
@@ -577,6 +621,8 @@
             guestLastName: getInputValue(reservationLastName),
             guestEmail: getInputValue(reservationEmail),
             guestPhone: getInputValue(reservationPhone),
+            birthDate: getInputValue(reservationBirthDate),
+            identityDocument: getInputValue(reservationIdentityDocument),
             street: getInputValue(reservationStreet),
             city: getInputValue(reservationCity),
             zip: getInputValue(reservationZip),
@@ -1071,6 +1117,22 @@
         revealReservationForm();
     });
 
+    reservationBirthDate?.addEventListener("beforeinput", (event) => {
+        if (event.inputType === "insertText" && event.data && /\D/.test(event.data)) {
+            event.preventDefault();
+        }
+    });
+
+    reservationBirthDate?.addEventListener("input", () => {
+        const formattedValue = formatBirthDateInput(reservationBirthDate.value);
+        if (reservationBirthDate.value !== formattedValue) {
+            reservationBirthDate.value = formattedValue;
+        }
+        validateBirthDate();
+    });
+
+    reservationBirthDate?.addEventListener("blur", validateBirthDate);
+
     reservationForm?.addEventListener("input", () => {
         if (reservationError) {
             reservationError.hidden = true;
@@ -1085,11 +1147,16 @@
             return;
         }
 
+        validateBirthDate();
+
         const requiredValid =
             Boolean(getInputValue(reservationFirstName)) &&
             Boolean(getInputValue(reservationLastName)) &&
             Boolean(getInputValue(reservationEmail)) &&
             Boolean(getInputValue(reservationPhone)) &&
+            Boolean(getInputValue(reservationBirthDate)) &&
+            isValidBirthDate(getInputValue(reservationBirthDate)) &&
+            Boolean(getInputValue(reservationIdentityDocument)) &&
             Boolean(getInputValue(reservationStreet)) &&
             Boolean(getInputValue(reservationCity)) &&
             Boolean(getInputValue(reservationZip)) &&

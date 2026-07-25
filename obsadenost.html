@@ -217,6 +217,34 @@
                             <span>Telefón *</span>
                             <input id="reservation-phone" name="phone" type="tel" autocomplete="tel" required />
                         </label>
+                        <label class="reservation-field" for="reservation-birth-date">
+                            <span>Dátum narodenia *</span>
+                            <input
+                                id="reservation-birth-date"
+                                name="birth_date"
+                                type="text"
+                                inputmode="numeric"
+                                autocomplete="off"
+                                placeholder="DD.MM.YYYY"
+                                maxlength="10"
+                                pattern="(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.[0-9]{4}"
+                                title="Zadajte dátum vo formáte DD.MM.YYYY"
+                                required
+                            />
+                        </label>
+                        <label class="reservation-field" for="reservation-identity-document">
+                            <span>Číslo občianskeho preukazu / pasu *</span>
+                            <input
+                                id="reservation-identity-document"
+                                name="identity_document"
+                                type="text"
+                                autocomplete="off"
+                                autocapitalize="characters"
+                                spellcheck="false"
+                                maxlength="32"
+                                required
+                            />
+                        </label>
                         <label class="reservation-field" for="reservation-street">
                             <span>Ulica a popisné číslo *</span>
                             <input id="reservation-street" name="street" type="text" autocomplete="address-line1" required />

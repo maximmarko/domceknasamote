@@ -31,7 +31,9 @@ const COLUMN_INDEX = {
   rejectToken: 25,
   decisionAt: 26,
   calendarId: 27,
-  calendarLink: 28
+  calendarLink: 28,
+  birthDate: 29,
+  identityDocument: 30
 };
 
 function doPost(e) {
@@ -156,6 +158,8 @@ function validateReservationPayload_(payload) {
     "endDate",
     "guestEmail",
     "guestPhone",
+    "birthDate",
+    "identityDocument",
     "guestCount",
     "paymentMethod"
   ];
@@ -169,6 +173,28 @@ function validateReservationPayload_(payload) {
   if (!payload.consents || payload.consents.required !== true) {
     throw new Error("Bez povinného súhlasu nie je možné rezerváciu odoslať.");
   }
+
+  if (!isValidBirthDate_(payload.birthDate)) {
+    throw new Error("Dátum narodenia musí byť platný a vo formáte DD.MM.YYYY.");
+  }
+}
+
+function isValidBirthDate_(value) {
+  const match = String(value || "").trim().match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if (!match) {
+    return false;
+  }
+
+  const day = Number(match[1]);
+  const month = Number(match[2]);
+  const year = Number(match[3]);
+  const date = new Date(year, month - 1, day);
+  return (
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day &&
+    date <= new Date()
+  );
 }
 
 function createReservationRecord_(payload) {
@@ -199,6 +225,8 @@ function createReservationRecord_(payload) {
     guestLastName: String(payload.guestLastName || "").trim(),
     guestEmail: String(payload.guestEmail || "").trim(),
     guestPhone: String(payload.guestPhone || "").trim(),
+    birthDate: String(payload.birthDate || "").trim(),
+    identityDocument: String(payload.identityDocument || "").trim(),
     startDate: String(payload.startDate || "").trim(),
     endDate: String(payload.endDate || "").trim(),
     startDateLabel: String(payload.startDateLabel || payload.startDate || "").trim(),
@@ -257,7 +285,9 @@ function appendReservation_(record) {
     record.rejectToken,
     "",
     record.calendarId,
-    ""
+    "",
+    record.birthDate,
+    record.identityDocument
   ]);
 }
 
@@ -278,6 +308,8 @@ function sendOwnerApprovalEmail_(record) {
     `Meno: ${record.guestFirstName} ${record.guestLastName}`.trim(),
     `Email: ${record.guestEmail}`,
     `Telefón: ${record.guestPhone}`,
+    `Dátum narodenia: ${record.birthDate}`,
+    `Číslo občianskeho preukazu / pasu: ${record.identityDocument}`,
     `Adresa: ${[record.street, record.city, record.zip, record.country].filter(Boolean).join(", ") || "-"}`,
     `Poznámka: ${record.notes || "-"}`,
     `Marketingový súhlas: ${record.marketingConsent ? "Áno" : "Nie"}`,
@@ -301,6 +333,8 @@ function sendOwnerApprovalEmail_(record) {
     tableRow_("Meno", `${record.guestFirstName} ${record.guestLastName}`.trim() || "-"),
     tableRow_("Email", record.guestEmail),
     tableRow_("Telefón", record.guestPhone),
+    tableRow_("Dátum narodenia", record.birthDate),
+    tableRow_("Číslo občianskeho preukazu / pasu", record.identityDocument),
     tableRow_("Adresa", [record.street, record.city, record.zip, record.country].filter(Boolean).join(", ") || "-"),
     tableRow_("Poznámka", record.notes || "-"),
     tableRow_("Marketingový súhlas", record.marketingConsent ? "Áno" : "Nie"),
@@ -489,7 +523,7 @@ function findReservationByToken_(action, token) {
     return null;
   }
 
-  const values = sheet.getRange(2, 1, lastRow - 1, 28).getValues();
+  const values = sheet.getRange(2, 1, lastRow - 1, COLUMN_INDEX.identityDocument).getValues();
   const tokenIndex = action === "reject" ? COLUMN_INDEX.rejectToken - 1 : COLUMN_INDEX.approveToken - 1;
 
   for (let i = 0; i < values.length; i += 1) {
@@ -518,6 +552,8 @@ function mapReservationRow_(row, rowNumber) {
     guestLastName: String(row[COLUMN_INDEX.guestLastName - 1]),
     guestEmail: String(row[COLUMN_INDEX.guestEmail - 1]),
     guestPhone: String(row[COLUMN_INDEX.guestPhone - 1]),
+    birthDate: String(row[COLUMN_INDEX.birthDate - 1]),
+    identityDocument: String(row[COLUMN_INDEX.identityDocument - 1]),
     startDate: String(row[COLUMN_INDEX.startDate - 1]),
     endDate: String(row[COLUMN_INDEX.endDate - 1]),
     startDateLabel: formatDateLabelFromIso_(row[COLUMN_INDEX.startDate - 1]),
@@ -575,6 +611,8 @@ function buildReservationCalendarDescription_(reservation, address) {
     `Hosť: ${[reservation.guestFirstName, reservation.guestLastName].filter(Boolean).join(" ") || "-"}`,
     `Email: ${reservation.guestEmail || "-"}`,
     `Telefón: ${reservation.guestPhone || "-"}`,
+    `Dátum narodenia: ${reservation.birthDate || "-"}`,
+    `Číslo občianskeho preukazu / pasu: ${reservation.identityDocument || "-"}`,
     `Adresa: ${address || "-"}`,
     `Počet osôb: ${reservation.guestCount || "-"}`,
     `Počet nocí: ${reservation.nights || "-"}`,
@@ -623,6 +661,14 @@ function getReservationSheet_() {
     sheet = spreadsheet.insertSheet(SHEET_NAME);
   }
 
+  const requiredColumnCount = COLUMN_INDEX.identityDocument;
+  if (sheet.getMaxColumns() < requiredColumnCount) {
+    sheet.insertColumnsAfter(
+      sheet.getMaxColumns(),
+      requiredColumnCount - sheet.getMaxColumns()
+    );
+  }
+
   if (sheet.getLastRow() === 0) {
     sheet.appendRow([
       "reservation_id",
@@ -652,8 +698,20 @@ function getReservationSheet_() {
       "reject_token",
       "decision_at",
       "calendar_id",
-      "calendar_link"
+      "calendar_link",
+      "birth_date",
+      "identity_document"
     ]);
+  } else {
+    const extraHeaders = sheet
+      .getRange(1, COLUMN_INDEX.birthDate, 1, 2)
+      .getValues()[0];
+    if (extraHeaders[0] !== "birth_date") {
+      sheet.getRange(1, COLUMN_INDEX.birthDate).setValue("birth_date");
+    }
+    if (extraHeaders[1] !== "identity_document") {
+      sheet.getRange(1, COLUMN_INDEX.identityDocument).setValue("identity_document");
+    }
   }
 
   return sheet;
