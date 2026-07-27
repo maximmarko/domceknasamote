@@ -683,7 +683,9 @@
                 compareDates(cellDate, selectionEnd) <= 0;
 
             if (bookedDates.has(dateKey)) {
-                cell.className = "calendar-cell booked";
+                cell.className = isPast
+                    ? "calendar-cell booked past-booked"
+                    : "calendar-cell booked";
             } else if (isPast) {
                 cell.className = "calendar-cell unavailable";
             } else {

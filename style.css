@@ -1509,6 +1509,11 @@ body.booking-nav-accent-on .booking-nav-link {
     position: relative;
 }
 
+.calendar-cell.booked.past-booked {
+    opacity: 0.52;
+    text-decoration: line-through;
+}
+
 .calendar-cell.selected-range {
     background: linear-gradient(135deg, rgba(139, 172, 153, 0.72), rgba(127, 161, 142, 0.76));
     border-color: rgba(79, 118, 97, 0.4);
