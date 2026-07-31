@@ -362,6 +362,10 @@ body.booking-nav-accent-on .booking-nav-link {
 .menu-open .mobile-nav a:nth-child(3) { transition-delay: 0.18s; }
 .menu-open .mobile-nav a:nth-child(4) { transition-delay: 0.24s; }
 
+.menu-open {
+    overflow: hidden;
+}
+
 .primary-btn,
 .ghost-btn {
     border-radius: 999px;
@@ -3085,6 +3089,7 @@ body.booking-nav-accent-on .booking-nav-link {
     z-index: 40;
     grid-template-columns: 1fr;
     height: 100vh;
+    height: 100dvh;
     padding: 0;
     margin: 0;
     gap: 0;
@@ -3243,7 +3248,9 @@ body.booking-nav-accent-on .booking-nav-link {
 
 .mapa-layout.mapa-fullscreen .mapa-canvas-wrap {
     height: 100vh;
+    height: 100dvh;
     min-height: 100vh;
+    min-height: 100dvh;
     border-radius: 0;
     border: none;
     box-shadow: none;
@@ -3251,6 +3258,8 @@ body.booking-nav-accent-on .booking-nav-link {
 
 .mapa-layout.mapa-fullscreen .mapa-canvas {
     min-height: 100vh;
+    min-height: 100dvh;
+    touch-action: none;
 }
 
 .mapa-layout.mapa-fullscreen .mapa-fs-filters {
@@ -3352,6 +3361,7 @@ body.booking-nav-accent-on .booking-nav-link {
     box-shadow: 0 12px 22px rgba(18, 22, 20, 0.28);
     overflow: visible;
     cursor: pointer;
+    touch-action: manipulation;
     position: absolute;
     transform: translate(-50%, -50%);
 }
@@ -4637,6 +4647,67 @@ body.booking-nav-accent-on .booking-nav-link {
         height: 72vh;
         object-fit: contain;
         background: transparent;
+    }
+
+    .lightbox--info {
+        display: block;
+        padding: max(10px, env(safe-area-inset-top)) 12px max(18px, env(safe-area-inset-bottom));
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .lightbox--info .lightbox-panel {
+        width: 100%;
+        max-width: 100%;
+        max-height: none;
+        margin: 0 auto;
+        padding-top: 52px;
+        padding-bottom: 8px;
+        gap: 12px;
+    }
+
+    .lightbox--info .lightbox-image {
+        width: 100%;
+        height: auto;
+        max-height: 42svh;
+        object-fit: contain;
+        border-radius: 16px;
+        background: rgba(18, 20, 18, 0.72);
+    }
+
+    .lightbox--info .lightbox-meta {
+        padding: 15px 16px 17px;
+        border-radius: 15px;
+    }
+
+    .lightbox--info .lightbox-count {
+        font-size: 1.08rem;
+    }
+
+    .lightbox--info .lightbox-lead {
+        font-size: 1.05rem;
+    }
+
+    .lightbox--info .lightbox-caption {
+        font-size: 0.95rem;
+        line-height: 1.55;
+        padding-inline: 4px;
+    }
+
+    .lightbox--info .lightbox-route-wrap {
+        padding-bottom: 4px;
+    }
+
+    .lightbox--info .lightbox-route-btn {
+        width: min(100%, 280px);
+        min-height: 52px;
+    }
+
+    .lightbox--info .lightbox-close {
+        top: max(12px, env(safe-area-inset-top));
+        right: 12px;
     }
 
     .lightbox-meta {

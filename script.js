@@ -1800,6 +1800,8 @@
     const driveButton = lightbox.querySelector("#lightbox-drive-btn");
     const walkButton = lightbox.querySelector("#lightbox-walk-btn");
     const closeButtons = Array.from(lightbox.querySelectorAll('[data-action="close"]'));
+    const closeButton = lightbox.querySelector(".lightbox-close");
+    let previouslyFocusedElement = null;
 
     if (!image || !caption || !count || !driveButton || !walkButton) {
         return;
@@ -1809,6 +1811,10 @@
         lightbox.classList.remove("is-open");
         lightbox.setAttribute("aria-hidden", "true");
         document.body.classList.remove("lightbox-open");
+        if (previouslyFocusedElement instanceof HTMLElement) {
+            previouslyFocusedElement.focus({ preventScroll: true });
+        }
+        previouslyFocusedElement = null;
     };
 
     window.openMapLightbox = ({
@@ -1837,9 +1843,12 @@
         walkButton.toggleAttribute("hidden", !walkNavigationUrl);
         walkButton.style.display = walkNavigationUrl ? "" : "none";
         walkButton.textContent = walkLabel || "Pešo";
+        previouslyFocusedElement = document.activeElement;
+        lightbox.scrollTop = 0;
         lightbox.classList.add("is-open");
         lightbox.setAttribute("aria-hidden", "false");
         document.body.classList.add("lightbox-open");
+        window.requestAnimationFrame(() => closeButton?.focus({ preventScroll: true }));
     };
 
     closeButtons.forEach((button) => {
@@ -2776,6 +2785,9 @@
     const buildMarkerContent = (loc) => {
         const node = document.createElement("div");
         node.className = `map-pin${loc.season === "always" ? " always" : ""}`;
+        node.setAttribute("role", "button");
+        node.setAttribute("tabindex", "0");
+        node.setAttribute("aria-label", `Otvoriť detail: ${loc.title || "Miesto"}`);
 
         if (loc.image) {
             const img = document.createElement("img");
@@ -2809,6 +2821,19 @@
                     this.position = position;
                     this.content = content;
                     this.onClick = onClick;
+                    this.handleClick = (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        this.onClick();
+                    };
+                    this.handleKeydown = (event) => {
+                        if (event.key !== "Enter" && event.key !== " ") {
+                            return;
+                        }
+                        event.preventDefault();
+                        event.stopPropagation();
+                        this.onClick();
+                    };
                     this.setMap(mapRef);
                 }
 
@@ -2817,7 +2842,8 @@
                     if (!pane) {
                         return;
                     }
-                    this.content.addEventListener("click", this.onClick);
+                    this.content.addEventListener("click", this.handleClick);
+                    this.content.addEventListener("keydown", this.handleKeydown);
                     pane.appendChild(this.content);
                 }
 
@@ -2835,7 +2861,8 @@
                 }
 
                 onRemove() {
-                    this.content.removeEventListener("click", this.onClick);
+                    this.content.removeEventListener("click", this.handleClick);
+                    this.content.removeEventListener("keydown", this.handleKeydown);
                     if (this.content.parentElement) {
                         this.content.parentElement.removeChild(this.content);
                     }
