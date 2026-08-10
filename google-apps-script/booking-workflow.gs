@@ -552,7 +552,7 @@ function mapReservationRow_(row, rowNumber) {
     guestLastName: String(row[COLUMN_INDEX.guestLastName - 1]),
     guestEmail: String(row[COLUMN_INDEX.guestEmail - 1]),
     guestPhone: String(row[COLUMN_INDEX.guestPhone - 1]),
-    birthDate: String(row[COLUMN_INDEX.birthDate - 1]),
+    birthDate: row[COLUMN_INDEX.birthDate - 1] || "",
     identityDocument: String(row[COLUMN_INDEX.identityDocument - 1]),
     startDate: String(row[COLUMN_INDEX.startDate - 1]),
     endDate: String(row[COLUMN_INDEX.endDate - 1]),
@@ -638,10 +638,22 @@ function buildReservationAddress_(reservation) {
 }
 
 function formatBirthDateForCalendar_(value) {
+  if (Object.prototype.toString.call(value) === "[object Date]" && !Number.isNaN(value.getTime())) {
+    return Utilities.formatDate(value, SCRIPT_TZ, "dd/MM/yyyy");
+  }
+
   const text = String(value || "").trim();
   const match = text.match(/^(\d{2})[.\/-](\d{2})[.\/-](\d{4})$/);
+  if (match) {
+    return `${match[1]}/${match[2]}/${match[3]}`;
+  }
 
-  return match ? `${match[1]}/${match[2]}/${match[3]}` : text || "-";
+  const parsedDate = new Date(text);
+  if (!Number.isNaN(parsedDate.getTime())) {
+    return Utilities.formatDate(parsedDate, SCRIPT_TZ, "dd/MM/yyyy");
+  }
+
+  return text || "-";
 }
 
 function archiveOwnerApprovalThread_(reservation) {
