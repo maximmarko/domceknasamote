@@ -611,7 +611,7 @@ function buildReservationCalendarDescription_(reservation, address) {
     `Hosť: ${[reservation.guestFirstName, reservation.guestLastName].filter(Boolean).join(" ") || "-"}`,
     `Email: ${reservation.guestEmail || "-"}`,
     `Telefón: ${reservation.guestPhone || "-"}`,
-    `Dátum narodenia: ${reservation.birthDate || "-"}`,
+    `Dátum narodenia: ${formatBirthDateForCalendar_(reservation.birthDate)}`,
     `Číslo občianskeho preukazu / pasu: ${reservation.identityDocument || "-"}`,
     `Adresa: ${address || "-"}`,
     `Počet osôb: ${reservation.guestCount || "-"}`,
@@ -635,6 +635,13 @@ function buildReservationAddress_(reservation) {
     reservation.zip,
     reservation.country
   ].filter(Boolean).join(", ");
+}
+
+function formatBirthDateForCalendar_(value) {
+  const text = String(value || "").trim();
+  const match = text.match(/^(\d{2})[.\/-](\d{2})[.\/-](\d{4})$/);
+
+  return match ? `${match[1]}/${match[2]}/${match[3]}` : text || "-";
 }
 
 function archiveOwnerApprovalThread_(reservation) {
