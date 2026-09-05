@@ -491,6 +491,8 @@ function buildGuestPaymentEmailBody_(reservation) {
     "",
     "SWIFT: GIBASKBX",
     "",
+    "Upozornenie: Ak záloha nebude uhradená do 2 dní od odoslania tohto e-mailu, rezervácia bude zrušená a termín bude opäť uvoľnený.",
+    "",
     "Po pripísaní platby Vám zašleme potvrdenie.",
     "",
     "O termíne doplatku Vás budeme včas informovať e-mailom.",

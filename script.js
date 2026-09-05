@@ -142,6 +142,7 @@
     const apiKey = "AIzaSyDo6fFMvGhf9QDMzlkPV6bKBPNYDHy6fUs";
     const refreshIntervalMs = 10 * 60 * 1000;
     const baseNightRate = Number(calendarSection.dataset.baseRate || 150);
+    const singleNightRate = Number(calendarSection.dataset.singleNightRate || 195);
     const reservationApiUrl = String(bookingConfig.endpoint || "").trim();
     const reservationOwnerEmail = String(bookingConfig.ownerEmail || "").trim();
     const approvalCalendarId = String(bookingConfig.approvalCalendarId || calendarId).trim();
@@ -262,7 +263,7 @@
         return getInclusiveRange(start, end).every(isDateSelectable);
     };
 
-    const getNightRate = () => baseNightRate;
+    const getNightRate = (nightCount) => nightCount === 1 ? singleNightRate : baseNightRate;
 
     const getDiscountRate = (nightCount) => {
         if (nightCount >= 5) {
@@ -277,7 +278,7 @@
         return 0;
     };
 
-    const hasPricing = () => baseNightRate > 0;
+    const hasPricing = () => baseNightRate > 0 && singleNightRate > 0;
 
     const hideReservationForm = () => {
         if (!reservationSection) {
@@ -351,7 +352,8 @@
     };
 
     const getFinalPrice = (nights) => {
-        const originalTotal = nights.reduce((sum, nightDate) => sum + getNightRate(nightDate), 0);
+        const nightRate = getNightRate(nights.length);
+        const originalTotal = nights.reduce((sum) => sum + nightRate, 0);
         const discountRate = getDiscountRate(nights.length);
         return {
             originalTotal,
@@ -468,7 +470,7 @@
             const { originalTotal, discountRate, discountAmount, finalTotal } = getFinalPrice(nights);
             const itemsMarkup = nights
                 .map((nightDate) => {
-                    const rate = getNightRate(nightDate);
+                    const rate = getNightRate(nights.length);
                     return `
                         <div class="booking-price-item">
                             <span>${formatDisplayDate(nightDate)}</span>
@@ -507,7 +509,9 @@
         bookingSubmit.disabled = !isReady;
         const discountRate = getDiscountRate(nights.length);
         bookingNote.textContent = isReady
-            ? discountRate > 0
+            ? nights.length === 1
+                ? "Pri pobyte na jednu noc je v cene započítaný príplatok 30%."
+                : discountRate > 0
                 ? `Po odoslaní žiadosti príde majiteľovi email na schválenie. V cene je započítaná zľava ${Math.round(discountRate * 100)}%.`
                 : "Pokračujte na formulár rezervácie s vybraným termínom."
             : "Doplňte počet osôb a spôsob platby pre pokračovanie.";
