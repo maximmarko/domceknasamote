@@ -50,11 +50,12 @@
             <aside class="mapa-panel">
                 <h2>Zauj&iacute;mav&eacute; miesta</h2>
                 <p class="mapa-sub">
-                    Hlavn&aacute; lokalita je v&zcaron;dy zobrazen&aacute;. Vyberte sez&oacute;nu pre ostatn&eacute; body.
+                    Hlavn&aacute; lokalita je v&zcaron;dy zobrazen&aacute;. Vyberte kateg&oacute;riu ostatn&yacute;ch miest.
                 </p>
-                <div class="mapa-filters" role="tablist" aria-label="Filter sezony">
+                <div class="mapa-filters" role="tablist" aria-label="Filter kategórií">
                     <button class="mapa-filter active" type="button" data-season-filter="summer">Leto</button>
                     <button class="mapa-filter" type="button" data-season-filter="winter">Zima</button>
+                    <button class="mapa-filter" type="button" data-season-filter="restaurants">Reštaurácie</button>
                 </div>
                 <div class="mapa-list" id="mapa-list"></div>
             </aside>
@@ -62,6 +63,7 @@
                 <div class="mapa-fs-filters" aria-label="Filter sezony vo fullscreene">
                     <button class="mapa-filter" type="button" data-season-filter="summer">Leto</button>
                     <button class="mapa-filter" type="button" data-season-filter="winter">Zima</button>
+                    <button class="mapa-filter" type="button" data-season-filter="restaurants">Reštaurácie</button>
                 </div>
                 <div class="mapa-zoom-controls" aria-label="Zoom mapy">
                     <button class="mapa-zoom-btn" id="mapa-zoom-in" type="button" aria-label="Priblizit mapu">+</button>
@@ -120,13 +122,95 @@
             mapId: "",
             locations: [
                 {
-                    title: "Dom\u010Dek na samote",
-                    description: "Hlavna lokalita",
-                    lat: 48.776715805040354,
-                    lng: 19.65578883211096,
-                    season: "always",
+                    title: "Domček na samote",
+                    description: "Hlavná lokalita",
+                    lat: 48.776715805040354, lng: 19.65578883211096, season: "always",
                     image: "Chalupka/DJI_0139.JPG",
                     url: "https://maps.google.com/?q=48.776715805040354,19.65578883211096"
+                },
+                {
+                    title: "Lesnícky skanzen Vydrovo",
+                    description: "Lesnícky náučný areál; overte aktuálne dni sprístupnenia",
+                    lat: 48.739444, lng: 19.652778, season: "summer",
+                    image: "Chalupka/activity-vydrovo.jpg",
+                    url: "https://maps.google.com/?q=48.739444,19.652778"
+                },
+                {
+                    title: "Bystrianska jaskyňa",
+                    description: "Prehliadka jaskyne v Bystrej",
+                    lat: 48.840069, lng: 19.594610, season: "summer",
+                    image: "Chalupka/activity-cave.jpg",
+                    url: "https://maps.google.com/?q=48.840069,19.594610"
+                },
+                {
+                    title: "Vyhliadková veža Horné Lazy",
+                    description: "Peší výlet s výhľadom na Brezno",
+                    lat: 48.81857, lng: 19.60502, season: "summer",
+                    image: "Chalupka/activity-horne-lazy.jpg",
+                    url: "https://maps.google.com/?q=48.81857,19.60502"
+                },
+                {
+                    title: "Kráľova hoľa zo Šumiaca",
+                    description: "Náročnejšia celodenná túra zo Šumiaca",
+                    lat: 48.882831, lng: 20.139075, season: "summer",
+                    image: "Chalupka/activity-kralova-hola.jpg",
+                    url: "https://www.google.com/maps/dir/?api=1&origin=48.84,20.129722&destination=48.882831,20.139075&travelmode=walking"
+                },
+                {
+                    title: "Ski Telgárt",
+                    description: "Lyžovanie pod Kráľovou hoľou",
+                    lat: 48.85075464739414, lng: 20.204340811716044, season: "winter",
+                    image: "Chalupka/activity-ski-telgart.jpg",
+                    url: "https://maps.google.com/?q=48.85075464739414,20.204340811716044"
+                },
+                {
+                    title: "Bežky Telgárt – Šumiac",
+                    description: "Bežkárske trate podľa snehových podmienok; východisko Šumiac",
+                    lat: 48.84, lng: 20.129722, season: "winter",
+                    image: "Chalupka/activity-bezky-telgart.jpg",
+                    url: "https://maps.google.com/?q=48.84,20.129722"
+                },
+                {
+                    title: "Red Horse Restaurant",
+                    description: "Reštaurácia pri Double Red Cars Museum, Brezno",
+                    lat: 48.7986183, lng: 19.6312599, season: "restaurants",
+                    image: "Chalupka/restaurant-red-horse.jpg",
+                    url: "https://maps.google.com/?q=48.7986183,19.6312599"
+                },
+                {
+                    title: "Pizzeria Barbaricum",
+                    description: "Pizzeria na námestí, Brezno",
+                    lat: 48.807744, lng: 19.6440387, season: "restaurants",
+                    image: "Chalupka/restaurant-barbaricum.jpg",
+                    url: "https://maps.google.com/?q=48.807744,19.6440387"
+                },
+                {
+                    title: "Reštaurácia Dvojka",
+                    description: "Reštaurácia v centre Brezna",
+                    lat: 48.8057915, lng: 19.6431392, season: "restaurants",
+                    image: "Chalupka/restaurant-dvojka.jpg",
+                    url: "https://maps.google.com/?q=48.8057915,19.6431392"
+                },
+                {
+                    title: "Reštaurácia ELF",
+                    description: "Reštaurácia v centre Brezna",
+                    lat: 48.805291, lng: 19.6420744, season: "restaurants",
+                    image: "Chalupka/restaurant-elf.jpg",
+                    url: "https://maps.google.com/?q=48.805291,19.6420744"
+                },
+                {
+                    title: "Mlyn Bystrá",
+                    description: "Reštaurácia a penzión, Bystrá",
+                    lat: 48.850498235322, lng: 19.605376124382, season: "restaurants",
+                    image: "Chalupka/restaurant-mlyn.jpg",
+                    url: "https://maps.google.com/?q=48.850498235322,19.605376124382"
+                },
+                {
+                    title: "Koliba pod Urbanovým vrchom",
+                    description: "Reštaurácia pri Ski Čierny Balog",
+                    lat: 48.74820923110817, lng: 19.634570897122057, season: "restaurants",
+                    image: "Chalupka/restaurant-koliba.jpg",
+                    url: "https://maps.google.com/?q=Koliba+pod+Urbanovym+vrchom+Cierny+Balog"
                 },
                 {
                     title: "\u010Ciernohronsk\u00E1 \u017Eeleznica",
@@ -224,5 +308,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
-

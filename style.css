@@ -2856,6 +2856,11 @@ body.booking-nav-accent-on .booking-nav-link {
     box-shadow: 0 10px 18px rgba(198, 164, 105, 0.26);
 }
 
+.mapa-filter[data-season-filter="restaurants"] {
+    grid-column: 1 / -1;
+    letter-spacing: 0;
+}
+
 .mapa-filter:hover {
     transform: translateY(-1px);
 }
