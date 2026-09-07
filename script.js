@@ -2942,7 +2942,8 @@
             return;
         }
 
-        if (!preserveCameraOnMarkerOpen) {
+        const keepCamera = preserveCameraOnMarkerOpen;
+        if (!keepCamera) {
             if (cameraAnimTimer) {
                 window.clearInterval(cameraAnimTimer);
                 cameraAnimTimer = null;
@@ -2971,6 +2972,7 @@
             ? `<img class="map-balloon-image" src="${loc.image}" alt="${loc.title || "Miesto"}" />`
             : "";
         window.setTimeout(() => {
+            infoWindow.setOptions({ disableAutoPan: keepCamera });
             infoWindow.setContent(`
                 <div class="map-balloon">
                     ${imageBlock}

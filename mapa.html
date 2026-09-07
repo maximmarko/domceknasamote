@@ -120,6 +120,7 @@
         window.MAPA_CONFIG = {
             apiKey: "AIzaSyCMLAcUh4fhvlJ2lKqf0Nz8dxJRFRZ23xI",
             mapId: "",
+            preserveCameraOnMarkerOpen: true,
             locations: [
                 {
                     title: "Domček na samote",
@@ -178,6 +179,13 @@
                     url: "https://maps.google.com/?q=48.7986183,19.6312599"
                 },
                 {
+                    title: "Salaš Zbojská",
+                    description: "Tradičná slovenská kuchyňa v sedle Zbojská",
+                    lat: 48.74499162658753, lng: 19.853517365485096, season: "restaurants",
+                    image: "Chalupka/restaurant-zbojska-food.jpg",
+                    url: "https://maps.google.com/?q=48.74499162658753,19.853517365485096"
+                },
+                {
                     title: "Pizzeria Barbaricum",
                     description: "Pizzeria na námestí, Brezno",
                     lat: 48.807744, lng: 19.6440387, season: "restaurants",
@@ -214,7 +222,7 @@
                 },
                 {
                     title: "\u010Ciernohronsk\u00E1 \u017Eeleznica",
-                    description: "Letna aktivita",
+                    description: "Výlet historickou lesnou železničkou z Čierneho Balogu",
                     lat: 48.7463480219968,
                     lng: 19.657303518601918,
                     season: "summer",
@@ -223,7 +231,7 @@
                 },
                 {
                     title: "Hron\u010Dianska dolina",
-                    description: "Letna aktivita",
+                    description: "Prechádzky a cyklovýlety v prírode popri Čiernom Hrone",
                     lat: 48.765873662275844,
                     lng: 19.62456419015173,
                     season: "summer",
@@ -232,7 +240,7 @@
                 },
                 {
                     title: "CYKLODREZINY",
-                    description: "Letna aktivita",
+                    description: "Zážitková jazda na bicykloch po koľajniciach z Hronca",
                     lat: 48.7954703807645,
                     lng: 19.582312171781755,
                     season: "summer",
@@ -241,7 +249,7 @@
                 },
                 {
                     title: "Rozh\u013Ead\u0148a Pust\u00FD Vrch",
-                    description: "Letna aktivita",
+                    description: "Peší výlet k drevenej rozhľadni nad Dobročou",
                     lat: 48.73874450785157,
                     lng: 19.685335797121553,
                     season: "summer",
@@ -250,7 +258,7 @@
                 },
                 {
                     title: "Ski \u010Cierny Balog",
-                    description: "Zimna aktivita",
+                    description: "Lyžovanie pod Urbanovým vrchom v Čiernom Balogu",
                     lat: 48.74820923110817,
                     lng: 19.634570897122057,
                     season: "winter",
@@ -259,7 +267,7 @@
                 },
                 {
                     title: "Be\u017Eky Lom nad Rimavicou",
-                    description: "Zimna aktivita",
+                    description: "Bežkovanie v okolí Lomu nad Rimavicou podľa snehových podmienok",
                     lat: 48.63577461175177,
                     lng: 19.64640138002385,
                     season: "winter",
@@ -268,7 +276,7 @@
                 },
                 {
                     title: "M\u00DDTO SKI & BIKE",
-                    description: "Zimna aktivita",
+                    description: "Lyžovačka v Mýte pod Ďumbierom",
                     lat: 48.846346198940104,
                     lng: 19.620717510621898,
                     season: "winter",
@@ -277,7 +285,7 @@
                 },
                 {
                     title: "Ski T\u00E1le",
-                    description: "Zimna aktivita",
+                    description: "Rodinné lyžovanie v prostredí Nízkych Tatier",
                     lat: 48.86864617473703,
                     lng: 19.59157835295312,
                     season: "winter",
@@ -286,7 +294,7 @@
                 },
                 {
                     title: "Ski Jasn\u00E1",
-                    description: "Zimna aktivita",
+                    description: "Lyžovanie na svahoch Chopka v Nízkych Tatrách",
                     lat: 48.944863765199905,
                     lng: 19.5898300885294,
                     season: "winter",
@@ -295,7 +303,7 @@
                 },
                 {
                     title: "Be\u017Ek\u00E1rske trate \u010Certovica",
-                    description: "Zimna aktivita",
+                    description: "Horské bežkárske trate pri Čertovici podľa snehových podmienok",
                     lat: 48.90527863159609,
                     lng: 19.736795953999636,
                     season: "winter",
