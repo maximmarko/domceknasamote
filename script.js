@@ -1363,53 +1363,37 @@
             return;
         }
 
+        let animation = null;
+        let expanded = item.open;
+
         summary.addEventListener("click", (event) => {
             event.preventDefault();
-            if (item.dataset.animating === "true") {
+            const startHeight = item.getBoundingClientRect().height;
+            expanded = !expanded;
+            if (animation) {
+                animation.cancel();
+            }
+
+            // Measure both native layouts so paragraph margins collapse with the answer.
+            item.open = expanded;
+            const endHeight = item.getBoundingClientRect().height;
+            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                animation = null;
+                item.style.overflow = "";
                 return;
             }
-            item.dataset.animating = "true";
-            if (item.hasAttribute("open")) {
-                const startHeight = content.getBoundingClientRect().height;
-                content.style.height = `${startHeight}px`;
-                content.style.opacity = "1";
-                content.style.transform = "translateY(0)";
 
-                requestAnimationFrame(() => {
-                    content.style.height = "0px";
-                    content.style.opacity = "0";
-                    content.style.transform = "translateY(-6px)";
-                });
-
-                const onClose = () => {
-                    item.removeAttribute("open");
-                    content.style.height = "";
-                    content.style.opacity = "";
-                    content.style.transform = "";
-                    item.dataset.animating = "false";
-                    content.removeEventListener("transitionend", onClose);
-                };
-                content.addEventListener("transitionend", onClose);
-            } else {
-                item.setAttribute("open", "");
-                const targetHeight = content.scrollHeight;
-                content.style.height = "0px";
-                content.style.opacity = "0";
-                content.style.transform = "translateY(-6px)";
-
-                requestAnimationFrame(() => {
-                    content.style.height = `${targetHeight}px`;
-                    content.style.opacity = "1";
-                    content.style.transform = "translateY(0)";
-                });
-
-                const onOpen = () => {
-                    content.style.height = "";
-                    content.removeEventListener("transitionend", onOpen);
-                    item.dataset.animating = "false";
-                };
-                content.addEventListener("transitionend", onOpen);
-            }
+            item.open = true;
+            item.style.overflow = "hidden";
+            animation = item.animate(
+                [{ height: `${startHeight}px` }, { height: `${endHeight}px` }],
+                { duration: 450, easing: "cubic-bezier(0.4, 0, 0.2, 1)" }
+            );
+            animation.onfinish = () => {
+                item.open = expanded;
+                item.style.overflow = "";
+                animation = null;
+            };
         });
     });
 })();
@@ -1442,7 +1426,8 @@
         return;
     }
 
-    const cards = Array.from(gallery.querySelectorAll(".gallery-card"));
+    const cards = Array.from(gallery.querySelectorAll(".gallery-card[data-gallery-src]"));
+    const video = lightbox.querySelector(".lightbox-video");
     const image = lightbox.querySelector(".lightbox-image");
     const caption = lightbox.querySelector(".lightbox-caption");
     const count = lightbox.querySelector(".lightbox-count");
@@ -1462,6 +1447,7 @@
         const label = card.querySelector(".gallery-card-label");
         return {
             src: card.getAttribute("data-gallery-src") || (img ? img.src : ""),
+            isVideo: card.dataset.galleryType === "video",
             alt: img ? img.getAttribute("alt") || "" : "",
             label: label ? label.textContent.trim() : "",
         };
@@ -1576,7 +1562,21 @@
         }
         resetZoom();
         currentIndex = index;
-        image.src = item.src;
+        if (video) {
+            video.pause();
+            video.hidden = !item.isVideo;
+        }
+        image.hidden = item.isVideo;
+        lightbox.classList.toggle("has-video", item.isVideo);
+        if (item.isVideo && video) {
+            video.src = item.src;
+            video.play().catch(() => {});
+            if (!document.fullscreenElement && lightbox.requestFullscreen) {
+                lightbox.requestFullscreen().catch(() => {});
+            }
+        } else {
+            image.src = item.src;
+        }
         image.alt = item.alt;
         caption.textContent = item.label;
         count.textContent = `${index + 1} / ${items.length}`;
@@ -1588,9 +1588,12 @@
 
     const close = () => {
         resetZoom();
+        if (video) video.pause();
+        if (document.fullscreenElement === lightbox) document.exitFullscreen().catch(() => {});
         lightbox.classList.remove("is-open");
         lightbox.setAttribute("aria-hidden", "true");
         document.body.classList.remove("lightbox-open");
+        cards[currentIndex]?.focus({ preventScroll: true });
     };
 
     const updateNavState = () => {
