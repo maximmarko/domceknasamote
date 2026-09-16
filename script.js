@@ -1448,6 +1448,7 @@
         return {
             src: card.getAttribute("data-gallery-src") || (img ? img.src : ""),
             isVideo: card.dataset.galleryType === "video",
+            mobileSrc: card.dataset.galleryMobileSrc || "",
             alt: img ? img.getAttribute("alt") || "" : "",
             label: label ? label.textContent.trim() : "",
         };
@@ -1569,7 +1570,15 @@
         image.hidden = item.isVideo;
         lightbox.classList.toggle("has-video", item.isVideo);
         if (item.isVideo && video) {
-            video.src = item.src;
+            const useMobileVideo = window.matchMedia("(max-width: 1024px), (pointer: coarse)").matches;
+            const source = useMobileVideo && item.mobileSrc ? item.mobileSrc : item.src;
+            video.muted = true;
+            if (video.getAttribute("src") !== source) {
+                video.src = source;
+                video.load();
+            } else {
+                video.currentTime = 0;
+            }
             video.play().catch(() => {});
             if (!document.fullscreenElement && lightbox.requestFullscreen) {
                 lightbox.requestFullscreen().catch(() => {});
