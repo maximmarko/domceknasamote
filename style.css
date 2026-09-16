@@ -1130,6 +1130,29 @@ body.booking-nav-accent-on .booking-nav-link {
     margin-right: auto;
 }
 
+.faq-group {
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+}
+
+.faq-group + .faq-group {
+    margin-top: 40px;
+}
+
+.faq-group h3 {
+    margin: 0 0 16px;
+    font-size: 1.875rem;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: 0;
+}
+
+.faq-item p strong {
+    font-weight: 700;
+    color: #1b1c1a;
+}
+
 .faq-item {
     box-sizing: border-box;
     border-bottom: 1px solid rgba(0, 0, 0, 0.18);
