@@ -146,7 +146,7 @@ a {
     stroke-width: 2.2;
     stroke-linecap: round;
     stroke-linejoin: round;
-    stroke-dasharray: 0 100;
+    stroke-dasharray: 16 84;
     stroke-dashoffset: 0;
     opacity: 0;
 }
@@ -156,12 +156,8 @@ body.booking-nav-accent-on .booking-nav-link-orbit {
 }
 
 body.booking-nav-accent-on .booking-nav-link-orbit rect {
-    animation: bookingNavTrace 1.7s linear 1 forwards;
-}
-
-body.booking-nav-accent-on .booking-nav-link-orbit {
-    opacity: 1;
-    animation: bookingNavGlow 1.7s ease-in-out 1;
+    animation: bookingNavTrace 2.4s linear 1 forwards,
+        bookingNavGlow 2.4s ease-in-out 1 forwards;
 }
 
 body.booking-nav-accent-on .booking-nav-link {
@@ -193,24 +189,10 @@ body.booking-nav-accent-on .booking-nav-link {
 
 @keyframes bookingNavTrace {
     0% {
-        stroke-dasharray: 0 100;
         stroke-dashoffset: 100;
-        opacity: 0;
-    }
-    12% {
-        stroke-dasharray: 16 84;
-        stroke-dashoffset: 100;
-        opacity: 1;
-    }
-    82% {
-        stroke-dasharray: 16 84;
-        stroke-dashoffset: 0;
-        opacity: 1;
     }
     100% {
-        stroke-dasharray: 0 100;
-        stroke-dashoffset: -16;
-        opacity: 0;
+        stroke-dashoffset: 0;
     }
 }
 
@@ -218,17 +200,8 @@ body.booking-nav-accent-on .booking-nav-link {
     0% {
         opacity: 0;
     }
-    18% {
-        opacity: 0.72;
-    }
-    52% {
-        opacity: 1;
-    }
-    78% {
-        opacity: 0.56;
-    }
-    96% {
-        opacity: 0.22;
+    20%, 65% {
+        opacity: 0.85;
     }
     100% {
         opacity: 0;
@@ -364,6 +337,12 @@ body.booking-nav-accent-on .booking-nav-link {
 
 .menu-open {
     overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.booking-nav-accent-on .booking-nav-link-orbit {
+        display: none;
+    }
 }
 
 .primary-btn,

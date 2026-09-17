@@ -1556,6 +1556,24 @@
         };
     };
 
+    let alternateVideoSource = "";
+    const versionedVideoSource = (source) => {
+        const url = new URL(source, document.baseURI);
+        url.searchParams.set("v", "20260917-2");
+        return url.href;
+    };
+
+    if (video) {
+        video.addEventListener("error", () => {
+            if (!alternateVideoSource || !lightbox.classList.contains("is-open") || video.hidden) return;
+            const source = alternateVideoSource;
+            alternateVideoSource = "";
+            video.src = source;
+            video.load();
+            video.play().catch(() => {});
+        });
+    }
+
     const openAt = (index) => {
         const item = items[index];
         if (!item) {
@@ -1563,6 +1581,10 @@
         }
         resetZoom();
         currentIndex = index;
+        alternateVideoSource = "";
+        lightbox.classList.add("is-open");
+        lightbox.setAttribute("aria-hidden", "false");
+        document.body.classList.add("lightbox-open");
         if (video) {
             video.pause();
             video.hidden = !item.isVideo;
@@ -1571,9 +1593,12 @@
         lightbox.classList.toggle("has-video", item.isVideo);
         if (item.isVideo && video) {
             const useMobileVideo = window.matchMedia("(max-width: 1024px), (pointer: coarse)").matches;
-            const source = useMobileVideo && item.mobileSrc ? item.mobileSrc : item.src;
+            const source = versionedVideoSource(useMobileVideo && item.mobileSrc ? item.mobileSrc : item.src);
+            const alternate = useMobileVideo ? item.src : item.mobileSrc;
+            alternateVideoSource = alternate && versionedVideoSource(alternate) !== source
+                ? versionedVideoSource(alternate) : "";
             video.muted = true;
-            if (video.getAttribute("src") !== source) {
+            if (video.getAttribute("src") !== source || video.error) {
                 video.src = source;
                 video.load();
             } else {
@@ -1589,14 +1614,12 @@
         image.alt = item.alt;
         caption.textContent = item.label;
         count.textContent = `${index + 1} / ${items.length}`;
-        lightbox.classList.add("is-open");
-        lightbox.setAttribute("aria-hidden", "false");
-        document.body.classList.add("lightbox-open");
         updateNavState();
     };
 
     const close = () => {
         resetZoom();
+        alternateVideoSource = "";
         if (video) video.pause();
         if (document.fullscreenElement === lightbox) document.exitFullscreen().catch(() => {});
         lightbox.classList.remove("is-open");
@@ -2328,7 +2351,7 @@
         clearTimeoutId = window.setTimeout(() => {
             document.body.classList.remove("booking-nav-accent-on");
             clearTimeoutId = null;
-        }, 1820);
+        }, 2520);
 
         cycleTimeout = window.setTimeout(() => {
             cycleTimeout = null;
